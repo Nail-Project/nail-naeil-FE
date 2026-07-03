@@ -208,4 +208,4 @@ NAVER_CLIENT_SECRET=your_client_secret
 | 예약 - 자세히 보기        | ReservationDetailScreen | 확정된 예약 카드의 자세히 보기 클릭 시    | 🔲 D   |
 | 예약 - 예약 변경         | ReservationEditScreen | 자세히 보기의 예약 변경 버튼 클릭 시      | 🔲 D   |
 | 예약 - 지난 예약 탭       | PastReservationScreen | 예약 화면 탭 전환                   | 🔲 D   |
-| 마이페이지 화면 (미완)      | MyPageScreen          | 홈 화면에서 진입                    | 🔲 미정  |
+| 마이페이지 화면 (미완)      | MyPageScreen          | 홈 화면에서 진입                    | 🔲 D  |
