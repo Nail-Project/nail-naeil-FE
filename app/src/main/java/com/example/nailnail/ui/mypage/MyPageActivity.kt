@@ -11,7 +11,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.nailnail.MainActivity
 import com.example.nailnail.R
-import com.example.nailnail.ui.reservation.ReservationActivity
 
 class MyPageActivity : AppCompatActivity() {
 
@@ -130,12 +129,7 @@ class MyPageActivity : AppCompatActivity() {
 
         findViewById<View>(R.id.nav_reservation)
             .setOnClickListener {
-                startActivity(
-                    Intent(
-                        this,
-                        ReservationActivity::class.java
-                    )
-                )
+                showPreparingMessage("예약")
             }
     }
 
