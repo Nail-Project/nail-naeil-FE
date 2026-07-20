@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/reservation_cancel_confirm_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F7F7F7">
+
+    <!-- 상단바 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_top_bar"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:background="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="뒤로가기"
+            android:padding="12dp"
+            android:src="@drawable/ic_reservation_back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_top_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="예약 취소 및 변경"
+            android:textColor="#111111"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:id="@+id/view_top_divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#EEEEEE"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_top_bar" />
+
+    <!-- 최종 확인 카드 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_cancel_confirm"
+        android:layout_width="0dp"
+        android:layout_height="390dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="120dp"
+        android:layout_marginEnd="12dp"
+        app:cardBackgroundColor="#FFFFFF"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_top_divider"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingStart="28dp"
+            android:paddingEnd="28dp">
+
+            <TextView
+                android:id="@+id/tv_confirm_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="정말 취소하시겠습니까?"
+                android:textColor="#111111"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_confirm_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:gravity="center"
+                android:text="취소 후에는 복구가 불가능하며,&#10;해당 가격으로 다시 예약이 어려울 수 있습니다."
+                android:textColor="#777777"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_selected_reason"
+                android:layout_width="match_parent"
+                android:layout_height="92dp"
+                android:layout_marginTop="18dp"
+                app:cardBackgroundColor="#E6E6E6"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="사유"
+                        android:textColor="#777777"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_selected_reason"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="기타"
+                        android:textColor="#111111"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 하단 버튼 -->
+    <LinearLayout
+        android:id="@+id/layout_bottom_buttons"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_confirm_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="예약 취소하기"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:backgroundTint="#FF002E"
+            app:cornerRadius="18dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_go_back"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="10dp"
+            android:text="이전으로"
+            android:textAllCaps="false"
+            android:textColor="#777777"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:backgroundTint="#E6E6E6"
+            app:cornerRadius="18dp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
