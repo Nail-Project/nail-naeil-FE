@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cancel_reason_bottom_sheet_root"
+    android:layout_width="match_parent"
+    android:layout_height="400dp"
+    android:background="@drawable/bg_reservation_bottom_sheet"
+    android:paddingStart="16dp"
+    android:paddingTop="28dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="20dp">
+
+    <TextView
+        android:id="@+id/tv_cancel_reason_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="취소 사유를 선택해주세요."
+        android:textColor="#1E1E1E"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/view_cancel_reason_divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="28dp"
+        android:background="#E7E2E0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_cancel_reason_title" />
+
+    <RadioGroup
+        android:id="@+id/group_cancel_reason"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_cancel_reason_divider">
+
+        <RadioButton
+            android:id="@+id/radio_cancel_personal"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:buttonTint="#DED9D6"
+            android:gravity="center_vertical"
+            android:paddingStart="0dp"
+            android:text="개인 사정으로 인해 취소할게요."
+            android:textColor="#716B68"
+            android:textSize="17sp" />
+
+        <RadioButton
+            android:id="@+id/radio_cancel_other_shop"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:buttonTint="#DED9D6"
+            android:gravity="center_vertical"
+            android:paddingStart="0dp"
+            android:text="다른 샵을 이용하게 됐어요."
+            android:textColor="#716B68"
+            android:textSize="17sp" />
+
+        <RadioButton
+            android:id="@+id/radio_cancel_wrong_datetime"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:buttonTint="#DED9D6"
+            android:gravity="center_vertical"
+            android:paddingStart="0dp"
+            android:text="예약 날짜 / 시간을 잘못 선택했어요."
+            android:textColor="#716B68"
+            android:textSize="17sp" />
+
+        <RadioButton
+            android:id="@+id/radio_cancel_other"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:buttonTint="#DED9D6"
+            android:gravity="center_vertical"
+            android:paddingStart="0dp"
+            android:text="기타"
+            android:textColor="#716B68"
+            android:textSize="17sp" />
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:id="@+id/layout_cancel_reason_buttons"
+        android:layout_width="0dp"
+        android:layout_height="54dp"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/group_cancel_reason">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel_reason_back"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="5dp"
+            android:layout_weight="1"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:text="뒤로 가기"
+            android:textAllCaps="false"
+            android:textColor="#1E1E1E"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:backgroundTint="#FFFFFF"
+            app:cornerRadius="7dp"
+            app:strokeColor="#D3CDCA"
+            app:strokeWidth="1dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel_reason_complete"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="5dp"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:text="선택 완료"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:backgroundTint="#D3CECB"
+            app:cornerRadius="7dp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

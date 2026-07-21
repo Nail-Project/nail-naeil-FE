@@ -5,53 +5,44 @@
     android:id="@+id/reservation_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F7F7F7">
+    android:background="#FFFFFF">
 
     <!-- 화면 제목 -->
     <TextView
         android:id="@+id/tv_reservation_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="22dp"
         android:text="예약"
-        android:textColor="#111111"
-        android:textSize="24sp"
+        android:textColor="#1E1E1E"
+        android:textSize="23sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_reservation_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:text="예약된 시술 일정을 확인하세요"
-        android:textColor="#858585"
-        android:textSize="13sp"
-        app:layout_constraintStart_toStartOf="@id/tv_reservation_title"
-        app:layout_constraintTop_toBottomOf="@id/tv_reservation_title" />
 
     <!-- 예약 탭 -->
     <LinearLayout
         android:id="@+id/layout_reservation_tabs"
         android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="66dp"
+        android:layout_marginTop="26dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_reservation_description">
+        app:layout_constraintTop_toBottomOf="@id/tv_reservation_title">
 
         <TextView
             android:id="@+id/tv_confirmed_tab"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
             android:gravity="center"
             android:text="확정된 예약"
-            android:textColor="#FF5F8F"
-            android:textSize="15sp"
+            android:textColor="#1E1E1E"
+            android:textSize="17sp"
             android:textStyle="bold" />
 
         <TextView
@@ -59,18 +50,21 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
             android:gravity="center"
             android:text="지난 예약"
-            android:textColor="#999999"
-            android:textSize="15sp" />
+            android:textColor="#716D6B"
+            android:textSize="17sp" />
 
     </LinearLayout>
 
-    <!-- 탭 아래 선택 표시선 -->
+    <!-- 탭 표시선 -->
     <LinearLayout
         android:id="@+id/layout_tab_indicators"
         android:layout_width="0dp"
         android:layout_height="2dp"
+        android:background="#E7E3E1"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -81,376 +75,951 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="#FF5F8F" />
+            android:background="#1E1E1E" />
 
         <View
             android:id="@+id/view_past_indicator"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="#FF5F8F"
+            android:background="#1E1E1E"
             android:visibility="invisible" />
 
     </LinearLayout>
 
-    <!-- 예약 내용 -->
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll_reservation"
+    <!-- 탭 내용 -->
+    <FrameLayout
+        android:id="@+id/frame_reservation_content"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:fillViewport="true"
-        android:paddingStart="16dp"
-        android:paddingTop="28dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="24dp"
-        app:layout_constraintBottom_toTopOf="@id/card_bottom_navigation"
+        app:layout_constraintBottom_toTopOf="@id/layout_bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_tab_indicators">
 
+        <!-- 확정된 예약이 없을 때 -->
         <LinearLayout
+            android:id="@+id/layout_empty_state"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp"
+            android:visibility="gone">
 
-            <!-- 예약 카드 -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_reservation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:id="@+id/tv_reservation_status"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="D - 1"
-                        android:textColor="#FF747D"
-                        android:textSize="12sp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tv_shop_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
-                        android:text="영찬 네일 강남점"
-                        android:textColor="#111111"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tv_reservation_status" />
-
-                    <TextView
-                        android:id="@+id/tv_reservation_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="16:00"
-                        android:textColor="#111111"
-                        android:textSize="21sp"
-                        android:textStyle="bold"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/tv_reservation_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="2026-05-10"
-                        android:textColor="#7D7D7D"
-                        android:textSize="12sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tv_reservation_time" />
-
-                    <!-- 둥근 네일 이미지 -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/card_nail_image"
-                        android:layout_width="76dp"
-                        android:layout_height="76dp"
-                        android:layout_marginTop="22dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tv_shop_name">
-
-                        <ImageView
-                            android:id="@+id/iv_nail_design"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:contentDescription="예약한 네일 디자인"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/img_nail_04" />
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <TextView
-                        android:id="@+id/tv_shop_location"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
-                        android:text="성수역 도보 5분"
-                        android:textColor="#7D7D7D"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/card_nail_image"
-                        app:layout_constraintTop_toTopOf="@id/card_nail_image" />
-
-                    <TextView
-                        android:id="@+id/tv_service_option"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
-                        android:layout_marginTop="5dp"
-                        android:text="손 젤네일 제거 있음"
-                        android:textColor="#7D7D7D"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/card_nail_image"
-                        app:layout_constraintTop_toBottomOf="@id/tv_shop_location" />
-
-                    <TextView
-                        android:id="@+id/tv_reservation_price"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
-                        android:layout_marginTop="6dp"
-                        android:text="55,000원"
-                        android:textColor="#111111"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toEndOf="@id/card_nail_image"
-                        app:layout_constraintTop_toBottomOf="@id/tv_service_option" />
-
-                    <!-- 길 찾기 / 샵 문의 버튼 -->
-                    <LinearLayout
-                        android:id="@+id/layout_reservation_buttons"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="20dp"
-                        android:orientation="horizontal"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/card_nail_image">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_find_route"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_marginEnd="6dp"
-                            android:layout_weight="1"
-                            android:text="길 찾기"
-                            android:textAllCaps="false"
-                            android:textColor="#777777"
-                            android:textSize="14sp"
-                            app:backgroundTint="#E9E9E9"
-                            app:cornerRadius="24dp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_contact_shop"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_marginStart="6dp"
-                            android:layout_weight="1"
-                            android:text="샵 문의"
-                            android:textAllCaps="false"
-                            android:textColor="#777777"
-                            android:textSize="14sp"
-                            app:backgroundTint="#E9E9E9"
-                            app:cornerRadius="24dp" />
-
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tv_manage_reservation"
-                        android:layout_width="0dp"
-                        android:layout_height="52dp"
-                        android:layout_marginTop="8dp"
-                        android:gravity="center"
-                        android:text="예약 취소 및 변경"
-                        android:textColor="#7D7D7D"
-                        android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/layout_reservation_buttons" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- 확정된 예약 안내 -->
             <TextView
-                android:id="@+id/tv_visit_notice_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="24dp"
-                android:text="방문 전 확인해주세요"
-                android:textColor="#111111"
-                android:textSize="14sp"
+                android:gravity="center"
+                android:text="확정된 예약이 없어요.&#10;지금 바로 견적을 요청해보세요!"
+                android:textColor="#1E1E1E"
+                android:textSize="23sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/tv_visit_notice"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="10dp"
-                android:text="기존 젤 제거가 포함된 시술입니다. 예약 시간보다 10분 일찍 방문해 주시면 더욱 원활한 시술이 가능합니다."
-                android:textColor="#858585"
-                android:textSize="12sp" />
-
-            <!-- 지난 예약 탭 안내 -->
-            <TextView
-                android:id="@+id/tv_past_reservation_notice"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:gravity="center"
-                android:text="최근 3개월간의 시술 내역입니다"
-                android:textColor="#222222"
-                android:textSize="13sp"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_design_estimate"
+                android:layout_width="180dp"
+                android:layout_height="52dp"
+                android:layout_marginTop="32dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:singleLine="true"
+                android:text="디자인 견적받기"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:visibility="gone" />
+                app:backgroundTint="#B2607D"
+                app:cornerRadius="7dp" />
 
         </LinearLayout>
 
-    </androidx.core.widget.NestedScrollView>
+        <!-- 확정된 예약이 있을 때 -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scroll_confirmed_reservation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            android:paddingStart="16dp"
+            android:paddingTop="24dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="28dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- 예약 개수 / 정렬 -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp">
+
+                    <TextView
+                        android:id="@+id/tv_confirmed_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="총 1건"
+                        android:textColor="#1E1E1E"
+                        android:textSize="19sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tv_confirmed_sort"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:paddingStart="14dp"
+                        android:text="방문일자 ↑"
+                        android:textColor="#1E1E1E"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- 확정 예약 카드 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_confirmed_reservation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="6dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- 상태 / 예약일시 -->
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/card_confirmed_status"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                app:cardBackgroundColor="#F7EEF1"
+                                app:cardCornerRadius="5dp"
+                                app:cardElevation="0dp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:strokeWidth="0dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center"
+                                    android:paddingStart="10dp"
+                                    android:paddingEnd="10dp"
+                                    android:text="D-1"
+                                    android:textColor="#B2607D"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <TextView
+                                android:id="@+id/tv_confirmed_datetime"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="07.04 (토) · 오후 16:00"
+                                android:textColor="#B2607D"
+                                android:textSize="17sp"
+                                android:textStyle="bold"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <!-- 예약 정보 -->
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="116dp"
+                            android:layout_marginTop="10dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/card_confirmed_image"
+                                android:layout_width="92dp"
+                                android:layout_height="92dp"
+                                app:cardCornerRadius="9dp"
+                                app:cardElevation="0dp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <ImageView
+                                    android:id="@+id/iv_confirmed_nail"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:contentDescription="확정 예약 네일 디자인"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/img_nail_1" />
+
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <TextView
+                                android:id="@+id/tv_confirmed_shop"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="유네일"
+                                android:textColor="#1E1E1E"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/card_confirmed_image"
+                                app:layout_constraintTop_toTopOf="@id/card_confirmed_image" />
+
+                            <TextView
+                                android:id="@+id/tv_confirmed_design"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:layout_marginTop="7dp"
+                                android:text="누드원톤 | 무광 | 열손아트 | 파츠"
+                                android:textColor="#272321"
+                                android:textSize="15sp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/card_confirmed_image"
+                                app:layout_constraintTop_toBottomOf="@id/tv_confirmed_shop" />
+
+                            <TextView
+                                android:id="@+id/tv_confirmed_option"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:layout_marginTop="6dp"
+                                android:text="손 젤·젤 제거/파츠제거"
+                                android:textColor="#8F8986"
+                                android:textSize="14sp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/card_confirmed_image"
+                                app:layout_constraintTop_toBottomOf="@id/tv_confirmed_design" />
+
+                            <TextView
+                                android:id="@+id/tv_confirmed_price"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:layout_marginTop="10dp"
+                                android:text="69,000원"
+                                android:textColor="#1E1E1E"
+                                android:textSize="21sp"
+                                android:textStyle="bold"
+                                app:layout_constraintStart_toEndOf="@id/card_confirmed_image"
+                                app:layout_constraintTop_toBottomOf="@id/tv_confirmed_option" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_reservation_detail"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:layout_marginTop="14dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="0dp"
+                            android:text="자세히 보기"
+                            android:textAllCaps="false"
+                            android:textColor="#1E1E1E"
+                            android:textSize="17sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="#FFFFFF"
+                            app:cornerRadius="7dp"
+                            app:strokeColor="#D4CECB"
+                            app:strokeWidth="1dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_reservation_manage"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:layout_marginTop="8dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="0dp"
+                            android:text="예약 변경 및 취소"
+                            android:textAllCaps="false"
+                            android:textColor="#EB5E4B"
+                            android:textSize="17sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="#FCEDEA"
+                            app:cornerRadius="7dp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 방문 전 안내 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_visit_notice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    app:cardBackgroundColor="#F2F0EF"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingStart="20dp"
+                        android:paddingTop="18dp"
+                        android:paddingEnd="20dp"
+                        android:paddingBottom="18dp">
+
+                        <TextView
+                            android:id="@+id/tv_visit_notice_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="ⓘ  방문 전 확인해주세요"
+                            android:textColor="#696461"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_visit_notice"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="30dp"
+                            android:layout_marginTop="8dp"
+                            android:lineSpacingExtra="5dp"
+                            android:text="기존 젤 제거가 포함된 시술입니다. 예약 시간보다 10분 일찍 방문해 주시면 더욱 원활한 시술이 가능합니다."
+                            android:textColor="#918B88"
+                            android:textSize="13sp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <!-- 지난 예약 -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scroll_past_reservation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            android:paddingStart="16dp"
+            android:paddingTop="24dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="28dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- 개수 / 정렬 -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp">
+
+                    <TextView
+                        android:id="@+id/tv_past_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="총 7건"
+                        android:textColor="#1E1E1E"
+                        android:textSize="19sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tv_past_sort"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:paddingStart="14dp"
+                        android:text="방문일자 ↑"
+                        android:textColor="#1E1E1E"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- 완료 예약 1 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="5dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                app:cardBackgroundColor="#F1EFEE"
+                                app:cardCornerRadius="5dp"
+                                app:cardElevation="0dp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center"
+                                    android:paddingStart="10dp"
+                                    android:paddingEnd="10dp"
+                                    android:text="시술완료"
+                                    android:textColor="#B5AFAC"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="06.02 (화) · 오후 19:00"
+                                android:textColor="#B5AFAC"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="116dp"
+                            android:layout_marginTop="10dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/card_past_image_1"
+                                android:layout_width="92dp"
+                                android:layout_height="92dp"
+                                app:cardCornerRadius="9dp"
+                                app:cardElevation="0dp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <ImageView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:contentDescription="지난 예약 네일 디자인"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/img_nail_2" />
+
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <TextView
+                                android:id="@+id/tv_past_shop_1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="네일플랜트"
+                                android:textColor="#1E1E1E"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/card_past_image_1"
+                                app:layout_constraintTop_toTopOf="@id/card_past_image_1" />
+
+                            <TextView
+                                android:id="@+id/tv_past_design_1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:layout_marginTop="7dp"
+                                android:text="민트프렌치 | 큐빅포인트"
+                                android:textColor="#272321"
+                                android:textSize="15sp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/card_past_image_1"
+                                app:layout_constraintTop_toBottomOf="@id/tv_past_shop_1" />
+
+                            <TextView
+                                android:id="@+id/tv_past_option_1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:layout_marginTop="6dp"
+                                android:text="손 젤·젤 제거"
+                                android:textColor="#8F8986"
+                                android:textSize="14sp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/card_past_image_1"
+                                app:layout_constraintTop_toBottomOf="@id/tv_past_design_1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:layout_marginTop="10dp"
+                                android:text="72,000원"
+                                android:textColor="#1E1E1E"
+                                android:textSize="21sp"
+                                android:textStyle="bold"
+                                app:layout_constraintStart_toEndOf="@id/card_past_image_1"
+                                app:layout_constraintTop_toBottomOf="@id/tv_past_option_1" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:layout_marginTop="14dp"
+                            android:enabled="false"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="0dp"
+                            android:text="시술이 완료된 견적입니다"
+                            android:textAllCaps="false"
+                            android:textColor="#B8B2AF"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="#F1EFEE"
+                            app:cornerRadius="7dp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 취소 예약 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_cancelled_reservation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:alpha="0.55"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                app:cardBackgroundColor="#FCECEA"
+                                app:cardCornerRadius="5dp"
+                                app:cardElevation="0dp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center"
+                                    android:paddingStart="10dp"
+                                    android:paddingEnd="10dp"
+                                    android:text="취소"
+                                    android:textColor="#E95F50"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <TextView
+                                android:id="@+id/tv_cancelled_date"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="05.12 (화) · 오후 13:00"
+                                android:textColor="#AAA4A1"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="116dp"
+                            android:layout_marginTop="10dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/card_cancelled_image"
+                                android:layout_width="92dp"
+                                android:layout_height="92dp"
+                                app:cardCornerRadius="9dp"
+                                app:cardElevation="0dp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <ImageView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:contentDescription="취소 예약 네일 디자인"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/img_nail_3" />
+
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <TextView
+                                android:id="@+id/tv_cancelled_shop"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="하늘네일"
+                                android:textColor="#77716E"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/card_cancelled_image"
+                                app:layout_constraintTop_toTopOf="@id/card_cancelled_image" />
+
+                            <TextView
+                                android:id="@+id/tv_cancelled_design"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:layout_marginTop="7dp"
+                                android:text="도트아트 | 별 아트"
+                                android:textColor="#77716E"
+                                android:textSize="15sp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/card_cancelled_image"
+                                app:layout_constraintTop_toBottomOf="@id/tv_cancelled_shop" />
+
+                            <TextView
+                                android:id="@+id/tv_cancelled_option"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:layout_marginTop="6dp"
+                                android:text="손 젤·젤 제거/파츠제거"
+                                android:textColor="#A19B98"
+                                android:textSize="14sp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/card_cancelled_image"
+                                app:layout_constraintTop_toBottomOf="@id/tv_cancelled_design" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 완료 예약 2 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:layout_marginBottom="20dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="5dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                app:cardBackgroundColor="#F1EFEE"
+                                app:cardCornerRadius="5dp"
+                                app:cardElevation="0dp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center"
+                                    android:paddingStart="10dp"
+                                    android:paddingEnd="10dp"
+                                    android:text="시술완료"
+                                    android:textColor="#B5AFAC"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="03.21 (토) · 오후 16:00"
+                                android:textColor="#B5AFAC"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="116dp"
+                            android:layout_marginTop="10dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/card_past_image_2"
+                                android:layout_width="92dp"
+                                android:layout_height="92dp"
+                                app:cardCornerRadius="9dp"
+                                app:cardElevation="0dp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+
+                                <ImageView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:contentDescription="지난 예약 네일 디자인"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/img_nail_4" />
+
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <TextView
+                                android:id="@+id/tv_past_shop_2"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:text="루네일"
+                                android:textColor="#1E1E1E"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/card_past_image_2"
+                                app:layout_constraintTop_toTopOf="@id/card_past_image_2" />
+
+                            <TextView
+                                android:id="@+id/tv_past_design_2"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:layout_marginTop="7dp"
+                                android:text="파우더 | 화이트 그라데이션"
+                                android:textColor="#272321"
+                                android:textSize="15sp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/card_past_image_2"
+                                app:layout_constraintTop_toBottomOf="@id/tv_past_shop_2" />
+
+                            <TextView
+                                android:id="@+id/tv_past_option_2"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:layout_marginTop="6dp"
+                                android:text="손 젤·젤 제거/파츠제거"
+                                android:textColor="#8F8986"
+                                android:textSize="14sp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/card_past_image_2"
+                                app:layout_constraintTop_toBottomOf="@id/tv_past_design_2" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="18dp"
+                                android:layout_marginTop="10dp"
+                                android:text="58,000원"
+                                android:textColor="#1E1E1E"
+                                android:textSize="21sp"
+                                android:textStyle="bold"
+                                app:layout_constraintStart_toEndOf="@id/card_past_image_2"
+                                app:layout_constraintTop_toBottomOf="@id/tv_past_option_2" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </FrameLayout>
 
     <!-- 하단 내비게이션 -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_bottom_navigation"
+    <LinearLayout
+        android:id="@+id/layout_bottom_navigation"
         android:layout_width="0dp"
-        android:layout_height="92dp"
-        app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="22dp"
-        app:cardElevation="5dp"
+        android:layout_height="82dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingTop="8dp"
+        android:paddingBottom="6dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/layout_tab_home"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <!-- 홈 -->
-            <LinearLayout
-                android:id="@+id/layout_tab_home"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="홈"
+                android:src="@drawable/ic_tab_home" />
 
-                <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:contentDescription="홈"
-                    android:src="@drawable/ic_tab_home" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="홈"
-                    android:textColor="#B5B2B4"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <!-- 견적함 -->
-            <LinearLayout
-                android:id="@+id/layout_tab_estimate"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:contentDescription="견적함"
-                    android:src="@drawable/ic_tab_list" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="견적함"
-                    android:textColor="#B5B2B4"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <!-- 예약 -->
-            <LinearLayout
-                android:id="@+id/layout_tab_reservation"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:contentDescription="예약"
-                    android:src="@drawable/ic_tab_reservation_selected" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="예약"
-                    android:textColor="#686668"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <!-- 마이 -->
-            <LinearLayout
-                android:id="@+id/layout_tab_my"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:contentDescription="마이"
-                    android:src="@drawable/ic_tab_my" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="마이"
-                    android:textColor="#B5B2B4"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="홈"
+                android:textColor="#918E8C"
+                android:textSize="12sp" />
 
         </LinearLayout>
 
-    </com.google.android.material.card.MaterialCardView>
+        <LinearLayout
+            android:id="@+id/layout_tab_estimate"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="견적함"
+                android:src="@drawable/ic_tab_list" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="견적함"
+                android:textColor="#918E8C"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_tab_reservation"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="예약"
+                android:src="@drawable/ic_tab_reservation_selected" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="예약"
+                android:textColor="#1E1E1E"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_tab_my"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="마이"
+                android:src="@drawable/ic_tab_my" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="마이"
+                android:textColor="#918E8C"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 하단 내비게이션 위 구분선 -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#E6E1DF"
+        app:layout_constraintBottom_toTopOf="@id/layout_bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

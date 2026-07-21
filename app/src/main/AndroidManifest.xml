@@ -14,16 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NailNail">
         <activity
-            android:name=".ui.reservation.ReservationCancelConfirmActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.reservation.ReservationCancelReasonActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.reservation.ReservationScheduleGuideActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.reservation.ReservationManageActivity"
+            android:name=".ui.reservation.ReservationDetailActivity"
             android:exported="false" />
         <activity
             android:name=".ui.reservation.ReservationActivity"
