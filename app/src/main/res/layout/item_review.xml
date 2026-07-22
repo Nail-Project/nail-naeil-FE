@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="#F9F9F9"
+    app:strokeWidth="1dp"
+    app:strokeColor="#EEEEEE">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 상단: 별점 & 날짜 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- 별점 텍스트 -->
+            <TextView
+                android:id="@+id/tvReviewRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="★★★★★ 5/5"
+                android:textColor="#FFBB00"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <!-- 중간 여백 (날짜를 오른쪽 끝으로 밀어내기 위함) -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- 작성일 (ex. 1일 전) -->
+            <TextView
+                android:id="@+id/tvReviewDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="1일 전"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- 리뷰 내용 -->
+        <TextView
+            android:id="@+id/tvReviewContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            tools:text="너무 좋아요. 억지로 내밀샵 탐색할필요없네요. 친구 소개로 간건데 손톱 상태에 알맞게 추천도 잘해주시구요, 타디자인 갖고가도 꼼꼼히 잘 해주세요. 드릴 후 먼지들을 제거해주시면서 따뜻한 타올로 손 감싸주셔서 넘 좋았습니다. 제가 다한증이 있어서 시술 받는 내내 너무 죄송했는데 내색 하나 안하셔서... 감사했어요!"
+            android:textColor="#444444"
+            android:textSize="13sp"
+            android:lineSpacingExtra="4dp" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <!-- 상단 고정 툴바 -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarShopDetail"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#FFFFFF"
+        app:title="상세보기"
+        app:titleCentered="true"
+        app:titleTextColor="#111111"
+        app:navigationIcon="@drawable/ic_back" /> <!-- 뒤로가기 아이콘 확인! -->
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- 1. 샵 커버 이미지 -->
+            <ImageView
+                android:id="@+id/ivShopCover"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:background="#EEEEEE" />
+
+            <!-- =================================================== -->
+            <!-- 2. 샵 기본 정보 섹션 -->
+            <!-- =================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/tvShopName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="유네일"
+                    android:textColor="#111111"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvShopMeta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    tools:text="★ 4.8 (312) · 내 위치에서 1.2km"
+                    android:textColor="#666666"
+                    android:textSize="13sp" />
+
+                <!-- 주소 및 휴무일 정보 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvAddress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="📍 서울 동작구 장승배기로10길 100 ∨   🗺️ 위치"
+                        android:textColor="#333333"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvClosedDays"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        tools:text="🕒 매주 화요일 휴무"
+                        android:textColor="#333333"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- 샵 코멘트 (회색 박스) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="#F9F9F9"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="샵 코멘트"
+                        android:textColor="#AAAAAA"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvShopComment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        tools:text="특정 파츠가 없어서 굉장히 유사한 파츠로 대신해서 최대한 디자인해드릴게요"
+                        android:textColor="#444444"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="8dp" android:background="#F5F5F5"/>
+
+            <!-- =================================================== -->
+            <!-- 3. 예약 가능 시간 섹션 -->
+            <!-- =================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="예약 가능 시간"
+                    android:textColor="#111111"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- 시간 슬롯 (그리드 형태 리사이클러뷰로 처리하는 것이 좋음) -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvTimeSlots"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                    tools:spanCount="2"
+                    tools:itemCount="4"
+                    tools:listitem="@layout/item_time_slot" /> <!-- 임시로 이전 아이템 뷰 연결 -->
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReserveMain"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="16dp"
+                    android:backgroundTint="#D3D3D3"
+                    android:text="예약하기"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="8dp"
+                    app:elevation="0dp" />
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="8dp" android:background="#F5F5F5"/>
+
+            <!-- =================================================== -->
+            <!-- 4. 견적서 상세 섹션 -->
+            <!-- =================================================== -->
+            <LinearLayout
+                android:id="@+id/layoutEstimateDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="견적서"
+                    android:textColor="#111111"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- 견적 이미지 3개 가로 나열 (HorizontalScrollView 활용) -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_marginBottom="12dp">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <ImageView android:layout_width="80dp" android:layout_height="80dp" android:background="#EEEEEE" android:layout_marginEnd="8dp"/>
+                        <ImageView android:layout_width="80dp" android:layout_height="80dp" android:background="#EEEEEE" android:layout_marginEnd="8dp"/>
+                        <ImageView android:layout_width="80dp" android:layout_height="80dp" android:background="#EEEEEE" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <TextView
+                    android:id="@+id/tvEstimateStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    tools:text="무채색톤 | 프렌치 | 열손아트"
+                    android:textColor="#111111"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="24dp"/>
+
+                <!-- 금액 상세 내역 (기본 가격, 디자인 추가 등) -->
+                <include layout="@layout/layout_price_breakdown" />
+                <!-- 내용이 길어질 수 있으니 별도 xml로 분리하는 게 유지보수에 좋음! (아래에 코드 줄게) -->
+
+                <TextView
+                    android:id="@+id/btnToggleEstimate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingVertical="16dp"
+                    android:text="간략히 ∧"
+                    android:textColor="#888888"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="8dp" android:background="#F5F5F5"/>
+
+            <!-- =================================================== -->
+            <!-- 5. 디자인 매칭 & 6. 최근 리뷰 (리사이클러뷰) 섹션 -->
+            <!-- =================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- 디자인 매칭 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="디자인 매칭"
+                    android:textColor="#111111"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="요청하신 디자인과의 유사도 87%"
+                    android:textColor="#996677"
+                    android:textSize="12sp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="12dp"/>
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_marginBottom="32dp">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <ImageView android:layout_width="100dp" android:layout_height="100dp" android:background="#EEEEEE" android:layout_marginEnd="8dp"/>
+                        <ImageView android:layout_width="100dp" android:layout_height="100dp" android:background="#EEEEEE" android:layout_marginEnd="8dp"/>
+                        <ImageView android:layout_width="100dp" android:layout_height="100dp" android:background="#EEEEEE" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <!-- 최근 리뷰 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="최근 리뷰"
+                    android:textColor="#111111"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvReviews"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    tools:listitem="@layout/item_review" /> <!-- 스크롤 충돌 방지 -->
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>
