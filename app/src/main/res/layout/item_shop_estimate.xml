@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:strokeWidth="1dp"
+    app:strokeColor="#EAEAEA">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp">
+
+        <!-- ========================================================= -->
+        <!-- 1. 응답 대기중 (나나네일 스타일) UI 그룹 -->
+        <!-- ========================================================= -->
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/groupWaiting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="tvWaitTopBadge,tvWaitRemoval,tvWaitShopName,tvWaitMeta,tvWaitPrice,btnWaiting"
+            android:visibility="gone"
+            tools:visibility="gone" />
+
+        <!-- 윗줄: 핑크색 텍스트(좌), 제거비 포함(우) -->
+        <TextView
+            android:id="@+id/tvWaitTopBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="평균 응답시간 : 2.5시간"
+            android:textColor="#996677"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tvWaitRemoval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="제거비 포함"
+            android:textColor="#AAAAAA"
+            android:textSize="11sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 아랫줄: 샵 이름 + 별점(옆에 붙음), 원(우측 하단) -->
+        <TextView
+            android:id="@+id/tvWaitShopName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            tools:text="나나네일"
+            android:textColor="#111111"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/tvWaitTopBadge"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tvWaitMeta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            tools:text="★ 4.8 (881)"
+            android:textColor="#888888"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@id/tvWaitShopName"
+            app:layout_constraintStart_toEndOf="@id/tvWaitShopName"
+            app:layout_constraintTop_toTopOf="@id/tvWaitShopName" />
+
+        <TextView
+            android:id="@+id/tvWaitPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="원"
+            android:textColor="#111111"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/tvWaitShopName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvWaitShopName" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnWaiting"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#FFFFFF"
+            android:text="응답 대기중"
+            android:textColor="#AAAAAA"
+            android:textSize="14sp"
+            app:strokeColor="#DDDDDD"
+            app:strokeWidth="1dp"
+            app:cornerRadius="8dp"
+            app:elevation="0dp"
+            app:layout_constraintTop_toBottomOf="@id/tvWaitShopName" />
+
+
+        <!-- ========================================================= -->
+        <!-- 2. 견적 도착 (유네일 스타일) UI 그룹 -->
+        <!-- ========================================================= -->
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/groupResponded"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="tvRespTopBadge,tvRespPrice,tvRespShopName,tvRespRemoval,tvRespMeta,layoutComment,svTimeSlots,layoutButtons"
+            android:visibility="visible"
+            tools:visibility="visible" />
+
+        <!-- 윗줄: 최저가 박스(좌), 가격(우) -->
+        <TextView
+            android:id="@+id/tvRespTopBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_pink_border_radius"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            tools:text="최저가"
+            android:textColor="#996677"
+            android:textSize="11sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+        <!-- Note: res/drawable/bg_pink_border_radius.xml 생성 필요 (핑크 테두리, 하얀 바탕, 둥근 모서리) -->
+
+        <TextView
+            android:id="@+id/tvRespPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="69,000원"
+            android:textColor="#111111"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 둘째 줄: 샵 이름(좌), 제거비 포함(우) -->
+        <TextView
+            android:id="@+id/tvRespShopName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            tools:text="유네일"
+            android:textColor="#111111"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/tvRespTopBadge"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tvRespRemoval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="제거비 포함"
+            android:textColor="#AAAAAA"
+            android:textSize="11sp"
+            app:layout_constraintBottom_toBottomOf="@id/tvRespShopName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvRespShopName" />
+
+        <!-- 셋째 줄: 샵 이름 아래에 별점 및 위치 -->
+        <TextView
+            android:id="@+id/tvRespMeta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            tools:text="★ 4.8 (881) · 내 위치에서 1.2km"
+            android:textColor="#888888"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@id/tvRespShopName"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- 샵 코멘트 영역 (회색 배경) -->
+        <LinearLayout
+            android:id="@+id/layoutComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="#F5F5F5"
+            android:orientation="vertical"
+            android:padding="12dp"
+            app:layout_constraintTop_toBottomOf="@id/tvRespMeta">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="샵 코멘트"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tvShopComment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                tools:text="특정 파츠가 없어서 굉장히 유사한 파츠로 대신해서 최대한 디자인해드릴게요"
+                android:textColor="#444444"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- 시간 선택 칩 컨테이너 -->
+        <HorizontalScrollView
+            android:id="@+id/svTimeSlots"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:scrollbars="none"
+            app:layout_constraintTop_toBottomOf="@id/layoutComment">
+
+            <LinearLayout
+                android:id="@+id/layoutTimeSlots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- 칩 예시 1: 선택 안 됨 (회색 테두리) -->
+                <!-- 🚨 android:text 였던 걸 tools:text 로 수정! -->
+                <com.google.android.material.button.MaterialButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#FFFFFF"
+                    app:strokeColor="#DDDDDD"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="6dp"
+                    android:paddingVertical="8dp"
+                    android:layout_marginEnd="8dp"
+                    tools:text="7/4 (토)\n오후 12:00"
+                    android:textColor="#111111"
+                    android:textSize="12sp"
+                    app:elevation="0dp"/>
+
+                <!-- 칩 예시 2: 선택됨 (핑크 테두리, 배경) -->
+                <!-- 🚨 여기도 tools:text 로 수정! -->
+                <com.google.android.material.button.MaterialButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#FFF0F5"
+                    app:strokeColor="#996677"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="6dp"
+                    android:paddingVertical="8dp"
+                    android:layout_marginEnd="8dp"
+                    tools:text="7/4 (토)\n오후 14:00"
+                    android:textColor="#996677"
+                    android:textSize="12sp"
+                    app:elevation="0dp"/>
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- 하단 버튼 2개 -->
+        <LinearLayout
+            android:id="@+id/layoutButtons"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/svTimeSlots">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDetail"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:backgroundTint="#FFFFFF"
+                android:text="상세보기"
+                android:textColor="#333333"
+                android:textSize="14sp"
+                app:strokeColor="#DDDDDD"
+                app:strokeWidth="1dp"
+                app:cornerRadius="8dp"
+                app:elevation="0dp" />
+
+            <!-- 활성화 상태 (핑크) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReserve"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:backgroundTint="#996677"
+                android:text="예약하기"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                app:cornerRadius="8dp"
+                app:elevation="0dp" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

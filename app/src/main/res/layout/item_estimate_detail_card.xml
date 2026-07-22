@@ -1,6 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F9F9F9">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- 상단 툴바 -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarDetail"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#FFFFFF"
+        app:title="견적 비교 결과"
+        app:titleTextColor="#111111" />
+
+    <!-- 1. 상단 요약 박스 -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="#FFFFFF">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivDetailThumbnail"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="#EEEEEE"
+                android:scaleType="centerCrop"
+                app:shapeAppearanceOverlay="@style/RoundedImageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <!-- 텍스트 2줄을 썸네일 옆에 수직 중앙 정렬하기 위한 컨테이너 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:orientation="vertical"
+                app:layout_constraintStart_toEndOf="@id/ivDetailThumbnail"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/ivDetailThumbnail"
+                app:layout_constraintBottom_toBottomOf="@id/ivDetailThumbnail">
+
+                <TextView
+                    android:id="@+id/tvDetailTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="무채색톤 | 프렌치 | 열손아트"
+                    android:textColor="#111111"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <!-- 상태 텍스트 (색상 분리를 위해 가로 레이아웃 사용) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvDetailStatusKeyword"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="응답중"
+                        android:textColor="#996677"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvDetailStatusDesc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text=" · 5개 중 3개 업체 답변 도착"
+                        android:textColor="#888888"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- 2. 날짜 필터 탭 -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="12dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTabAll"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="전체"
+                android:textColor="#996677"
+                android:textSize="13sp"
+                android:backgroundTint="#FFF0F5"
+                app:strokeColor="#996677"
+                app:strokeWidth="1dp"
+                app:cornerRadius="6dp"
+                android:layout_marginEnd="8dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTabDate1"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                tools:text="7/4 (토)"
+                android:textColor="#666666"
+                android:textSize="13sp"
+                android:backgroundTint="#FFFFFF"
+                app:strokeColor="#DDDDDD"
+                app:strokeWidth="1dp"
+                app:cornerRadius="6dp"
+                android:layout_marginEnd="8dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTabDate2"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                tools:text="7/5 (일)"
+                android:textColor="#666666"
+                android:textSize="13sp"
+                android:backgroundTint="#FFFFFF"
+                app:strokeColor="#DDDDDD"
+                app:strokeWidth="1dp"
+                app:cornerRadius="6dp"/>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- 3. 정렬 필터 -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="최저가 ∨"
+        android:textColor="#111111"
+        android:textStyle="bold"
+        android:textSize="14sp" />
+
+    <!-- 4. 리사이클러뷰 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewShopEstimates"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="20dp" />
+
+</LinearLayout>

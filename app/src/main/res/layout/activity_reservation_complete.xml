@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <!-- 상단 툴바 (필요 없으면 지워도 됨, 보통 완료 화면은 툴바 없이 깔끔하게 감) -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarComplete"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 정중앙 완료 메시지 영역 -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnGoToReservations"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- 체크 아이콘 (프로젝트에 있는 체크 이미지(ic_check_pink)로 교체 필요) -->
+        <ImageView
+            android:id="@+id/ivCheckIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@android:drawable/ic_dialog_info"
+            app:tint="#996677"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="예약이 완료되었어요"
+            android:textColor="#111111"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="완료된 예약은 예약함에서 확인 가능합니다."
+            android:textColor="#888888"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- 하단 예약함 바로가기 버튼 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnGoToReservations"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="24dp"
+        android:backgroundTint="#996677"
+        android:text="예약함 바로가기"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="8dp"
+        app:elevation="0dp"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
