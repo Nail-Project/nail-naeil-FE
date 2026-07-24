@@ -14,6 +14,12 @@ import com.example.nailnail.R
 
 class MyPageActivity : AppCompatActivity() {
 
+    /*
+     * false: 무료 이용 중 화면
+     * true: N플러스 이용 중 화면
+     */
+    private val isNPlusMember = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -21,17 +27,16 @@ class MyPageActivity : AppCompatActivity() {
 
         applyWindowInsets()
         initMenuClickListeners()
+        initMembershipClickListeners()
         initBottomNavigation()
+        updateMembershipCard()
     }
 
-    // 프로필 수정 화면에서 돌아오면
-    // 저장된 이름과 이메일을 다시 표시
     override fun onResume() {
         super.onResume()
         updateProfileInformation()
     }
 
-    // 상태바와 내비게이션바 영역 반영
     private fun applyWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(
             findViewById(R.id.my_page_root)
@@ -53,87 +58,173 @@ class MyPageActivity : AppCompatActivity() {
         }
     }
 
-    // 마이페이지 메뉴 클릭 이벤트
     private fun initMenuClickListeners() {
-        // 프로필 수정
-        findViewById<View>(R.id.layout_profile)
-            .setOnClickListener {
-                startActivity(
-                    Intent(
-                        this,
-                        EditProfileActivity::class.java
-                    )
-                )
-            }
+        // 프로필 영역
+        findViewById<View>(
+            R.id.layout_profile
+        ).setOnClickListener {
+            openEditProfileScreen()
+        }
+
+        // 수정 버튼
+        findViewById<View>(
+            R.id.btn_profile_edit
+        ).setOnClickListener {
+            openEditProfileScreen()
+        }
 
         // 찜한 디자인
-        findViewById<View>(R.id.menu_favorite_design)
-            .setOnClickListener {
-                startActivity(
-                    Intent(
-                        this,
-                        FavoriteDesignActivity::class.java
-                    )
+        findViewById<View>(
+            R.id.menu_favorite_design
+        ).setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    FavoriteDesignActivity::class.java
                 )
-            }
+            )
+        }
 
         // 찜한 매장
-        findViewById<View>(R.id.menu_favorite_shop)
-            .setOnClickListener {
-                startActivity(
-                    Intent(
-                        this,
-                        FavoriteShopActivity::class.java
-                    )
+        findViewById<View>(
+            R.id.menu_favorite_shop
+        ).setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    FavoriteShopActivity::class.java
                 )
-            }
+            )
+        }
 
-        // 아직 구현하지 않은 메뉴
-        findViewById<View>(R.id.menu_notification_setting)
-            .setOnClickListener {
-                showPreparingMessage("알림 설정")
-            }
+        // 내 정보
+        findViewById<View>(
+            R.id.menu_my_info
+        ).setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    MyInfoActivity::class.java
+                )
+            )
+        }
 
-        findViewById<View>(R.id.menu_faq)
-            .setOnClickListener {
-                showPreparingMessage("자주 묻는 질문")
-            }
+        // 알림 설정
+        findViewById<View>(
+            R.id.menu_notification_setting
+        ).setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    NotificationSettingActivity::class.java
+                )
+            )
+        }
+        // 공지사항
+        findViewById<View>(
+            R.id.menu_notice
+        ).setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    NoticeActivity::class.java
+                )
+            )
+        }
 
-        findViewById<View>(R.id.menu_environment_setting)
-            .setOnClickListener {
-                showPreparingMessage("환경 설정")
-            }
-
-        findViewById<View>(R.id.menu_terms_policy)
-            .setOnClickListener {
-                showPreparingMessage("약관 및 정책")
-            }
+        // 약관 및 정책
+        findViewById<View>(
+            R.id.menu_terms_policy
+        ).setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    TermsPolicyActivity::class.java
+                )
+            )
+        }
     }
 
-    // 하단 내비게이션 클릭 이벤트
+    private fun openEditProfileScreen() {
+        startActivity(
+            Intent(
+                this,
+                EditProfileActivity::class.java
+            )
+        )
+    }
+
+    private fun initMembershipClickListeners() {
+        findViewById<View>(
+            R.id.tv_free_payment_history
+        ).setOnClickListener {
+            showPreparingMessage("결제내역")
+        }
+
+        findViewById<View>(
+            R.id.tv_nplus_payment_history
+        ).setOnClickListener {
+            showPreparingMessage("결제내역")
+        }
+
+        findViewById<View>(
+            R.id.btn_more_benefits
+        ).setOnClickListener {
+            showPreparingMessage("N 플러스 혜택")
+        }
+    }
+
+    private fun updateMembershipCard() {
+        val freeMembershipLayout =
+            findViewById<View>(
+                R.id.layout_free_membership
+            )
+
+        val nPlusMembershipLayout =
+            findViewById<View>(
+                R.id.layout_nplus_membership
+            )
+
+        if (isNPlusMember) {
+            freeMembershipLayout.visibility =
+                View.GONE
+
+            nPlusMembershipLayout.visibility =
+                View.VISIBLE
+        } else {
+            freeMembershipLayout.visibility =
+                View.VISIBLE
+
+            nPlusMembershipLayout.visibility =
+                View.GONE
+        }
+    }
+
     private fun initBottomNavigation() {
-        findViewById<View>(R.id.nav_home)
-            .setOnClickListener {
-                startActivity(
-                    Intent(
-                        this,
-                        MainActivity::class.java
-                    )
+        findViewById<View>(
+            R.id.nav_home
+        ).setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    MainActivity::class.java
                 )
-            }
+            )
+        }
 
-        findViewById<View>(R.id.nav_estimate)
-            .setOnClickListener {
-                showPreparingMessage("견적함")
-            }
+        findViewById<View>(
+            R.id.nav_estimate
+        ).setOnClickListener {
+            showPreparingMessage("견적함")
+        }
 
-        findViewById<View>(R.id.nav_reservation)
-            .setOnClickListener {
-                showPreparingMessage("예약")
-            }
+        findViewById<View>(
+            R.id.nav_reservation
+        ).setOnClickListener {
+            showPreparingMessage("예약")
+        }
     }
 
-    // SharedPreferences에 저장된 프로필 정보 불러오기
     private fun updateProfileInformation() {
         val preferences =
             getSharedPreferences(
@@ -141,31 +232,32 @@ class MyPageActivity : AppCompatActivity() {
                 MODE_PRIVATE
             )
 
-        val name =
+        val nickname =
             preferences.getString(
-                EditProfileActivity.KEY_NAME,
-                EditProfileActivity.DEFAULT_NAME
-            ) ?: EditProfileActivity.DEFAULT_NAME
+                KEY_NICKNAME,
+                DEFAULT_NICKNAME
+            ) ?: DEFAULT_NICKNAME
 
-        val email =
-            preferences.getString(
-                EditProfileActivity.KEY_EMAIL,
-                EditProfileActivity.DEFAULT_EMAIL
-            ) ?: EditProfileActivity.DEFAULT_EMAIL
-
-        findViewById<TextView>(R.id.tv_user_name).text =
-            "$name 님"
-
-        findViewById<TextView>(R.id.tv_user_email).text =
-            email
+        findViewById<TextView>(
+            R.id.tv_user_name
+        ).text = nickname
     }
 
-    // 아직 구현되지 않은 메뉴 안내
-    private fun showPreparingMessage(menuName: String) {
+    private fun showPreparingMessage(
+        menuName: String
+    ) {
         Toast.makeText(
             this,
             "$menuName 화면은 다음 단계에서 연결합니다.",
             Toast.LENGTH_SHORT
         ).show()
+    }
+
+    companion object {
+        private const val KEY_NICKNAME =
+            "nickname"
+
+        private const val DEFAULT_NICKNAME =
+            "네일내일"
     }
 }

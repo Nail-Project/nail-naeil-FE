@@ -8,71 +8,83 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nailnail.R
 
-data class FavoriteDesignItem(
-    val imageResource: Int,
-    val shopName: String,
-    val rating: String,
-    val reviewCount: String,
-    val distance: String
-)
-
 class FavoriteDesignAdapter(
     private val items: List<FavoriteDesignItem>,
-    private val onItemClick: (FavoriteDesignItem) -> Unit
-) : RecyclerView.Adapter<FavoriteDesignAdapter.DesignViewHolder>() {
+    private val onItemClick: (FavoriteDesignItem) -> Unit,
+    private val onHeartClick: (FavoriteDesignItem) -> Unit
+) : RecyclerView.Adapter<FavoriteDesignAdapter.FavoriteDesignViewHolder>() {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): DesignViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(
-            R.layout.item_favorite_design,
-            parent,
-            false
-        )
+    ): FavoriteDesignViewHolder {
 
-        return DesignViewHolder(view)
+        val view =
+            LayoutInflater.from(parent.context)
+                .inflate(
+                    R.layout.item_favorite_design,
+                    parent,
+                    false
+                )
+
+        return FavoriteDesignViewHolder(view)
     }
 
     override fun onBindViewHolder(
-        holder: DesignViewHolder,
+        holder: FavoriteDesignViewHolder,
         position: Int
     ) {
         holder.bind(items[position])
     }
 
-    override fun getItemCount(): Int {
-        return items.size
-    }
+    override fun getItemCount(): Int =
+        items.size
 
-    inner class DesignViewHolder(
+    inner class FavoriteDesignViewHolder(
         itemView: View
     ) : RecyclerView.ViewHolder(itemView) {
 
         private val designImage: ImageView =
-            itemView.findViewById(R.id.iv_design_image)
+            itemView.findViewById(
+                R.id.iv_design_image
+            )
 
-        private val shopName: TextView =
-            itemView.findViewById(R.id.tv_shop_name)
+        private val designName: TextView =
+            itemView.findViewById(
+                R.id.tv_design_name
+            )
 
-        private val rating: TextView =
-            itemView.findViewById(R.id.tv_rating)
+        private val popularBadge: TextView =
+            itemView.findViewById(
+                R.id.tv_popular_badge
+            )
 
-        private val reviewCount: TextView =
-            itemView.findViewById(R.id.tv_review_count)
-
-        private val distance: TextView =
-            itemView.findViewById(R.id.tv_distance)
+        private val favoriteHeart: ImageView =
+            itemView.findViewById(
+                R.id.iv_favorite_heart
+            )
 
         fun bind(item: FavoriteDesignItem) {
-            designImage.setImageResource(item.imageResource)
-            shopName.text = item.shopName
-            rating.text = item.rating
-            reviewCount.text = item.reviewCount
-            distance.text = item.distance
+            designImage.setImageResource(
+                item.imageResource
+            )
+
+            designName.text =
+                item.designName
+
+            popularBadge.visibility =
+                if (item.isPopular) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
 
             itemView.setOnClickListener {
                 onItemClick(item)
+            }
+
+            favoriteHeart.setOnClickListener {
+                onHeartClick(item)
             }
         }
     }

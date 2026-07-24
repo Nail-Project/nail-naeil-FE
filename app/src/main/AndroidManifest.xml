@@ -13,7 +13,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.NailNail">
-
+        <activity
+            android:name=".ui.mypage.TermsPolicyActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.mypage.NoticeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.mypage.NotificationSettingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.mypage.MyInfoActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.mypage.EditProfileActivity"
             android:exported="false" />
