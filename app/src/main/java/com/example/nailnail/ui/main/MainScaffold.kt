@@ -23,7 +23,7 @@ import com.example.nailnail.ui.main.estimate.EstimateListScreen
 import com.example.nailnail.ui.main.home.EstimateSummary
 import com.example.nailnail.ui.main.home.MainHomeScreen
 import com.example.nailnail.ui.main.my.MyScreen
-import com.example.nailnail.ui.main.reservation.ReservationScreen
+import com.example.nailnail.ui.main.reservation.ReservationListScreen
 
 private data class MainTab(
     val route: String,
@@ -47,7 +47,8 @@ fun MainScaffold(
     onStartEstimate: () -> Unit,
     onMagazineClick: (String) -> Unit,
     onEstimateClick: (EstimateSummary) -> Unit,
-    onEstimateItemClick: (EstimateItem) -> Unit
+    onEstimateItemClick: (EstimateItem) -> Unit,
+    onReservationItemClick: (String) -> Unit
 ) {
     val tabNavController = rememberNavController()
 
@@ -100,7 +101,12 @@ fun MainScaffold(
             composable(MainTabRoutes.ESTIMATE_LIST) {
                 EstimateListScreen(onItemClick = onEstimateItemClick)
             }
-            composable(MainTabRoutes.RESERVATION) { ReservationScreen() }
+            composable(MainTabRoutes.RESERVATION) {
+                ReservationListScreen(
+                    onReservationClick = onReservationItemClick,
+                    onStartEstimate = onStartEstimate
+                )
+            }
             composable(MainTabRoutes.MY) { MyScreen() }
         }
     }

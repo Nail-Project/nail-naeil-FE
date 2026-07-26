@@ -11,6 +11,7 @@ import com.example.nailnail.ui.main.address.AddressFormScreen
 import com.example.nailnail.ui.main.address.AddressSettingsScreen
 import com.example.nailnail.ui.main.estimate.EstimateComparisonScreen
 import com.example.nailnail.ui.main.estimate.ShopDetailScreen
+import com.example.nailnail.ui.main.reservation.ReservationDetailScreen
 import com.example.nailnail.ui.onboarding.SplashScreen
 import com.example.nailnail.ui.quote.QuoteFlow
 
@@ -37,6 +38,9 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
                 onEstimateClick = {},
                 onEstimateItemClick = { item ->
                     navController.navigate(Routes.estimateComparison(item.id))
+                },
+                onReservationItemClick = { reservationId ->
+                    navController.navigate(Routes.reservationDetail(reservationId))
                 }
             )
         }
@@ -61,6 +65,15 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
                 shopId = shopId,
                 onBackClick = { navController.popBackStack() },
                 onReserveClick = {}
+            )
+        }
+
+        composable(Routes.RESERVATION_DETAIL) { backStackEntry ->
+            val reservationId = backStackEntry.arguments?.getString("reservationId").orEmpty()
+            ReservationDetailScreen(
+                reservationId = reservationId,
+                onBackClick = { navController.popBackStack() },
+                onCancelled = { navController.popBackStack() }
             )
         }
 
