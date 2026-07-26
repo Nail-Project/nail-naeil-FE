@@ -20,6 +20,7 @@ val PhotoPlaceholderGray = Color(0xFFD9D9D9)
 val DividerGray = Color(0xFFE0E0E0)
 val TextSecondary = Color(0xFF757575)
 val DangerRed = Color(0xFFE53935)
+val DangerBgLight = Color(0xFFFCEDEA)
 
 // 견적받기 플로우 보조 색상
 val TextPlaceholder = Color(0xFFB3ABAB)
