@@ -34,6 +34,7 @@ fun MainHomeScreen(
     onAddressClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onNeedUpgrade: () -> Unit,
+    onStartEstimate: () -> Unit,
     onMagazineClick: (String) -> Unit,
     onEstimateClick: (EstimateSummary) -> Unit
 ) {
@@ -88,7 +89,7 @@ fun MainHomeScreen(
                 subtitle = uploadSubtitle,
                 activeEstimateCount = HomeMockState.estimates.size,
                 onUploadClick = {
-                    if (HomeMockState.needsUpgrade()) onNeedUpgrade() else HomeMockState.addMockEstimate()
+                    if (HomeMockState.needsUpgrade()) onNeedUpgrade() else onStartEstimate()
                 },
                 onAvatarClick = onNeedUpgrade
             )

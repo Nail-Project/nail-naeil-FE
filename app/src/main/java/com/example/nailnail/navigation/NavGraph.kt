@@ -10,6 +10,7 @@ import com.example.nailnail.ui.main.address.AddressEditScreen
 import com.example.nailnail.ui.main.address.AddressFormScreen
 import com.example.nailnail.ui.main.address.AddressSettingsScreen
 import com.example.nailnail.ui.onboarding.SplashScreen
+import com.example.nailnail.ui.quote.QuoteFlow
 
 @Composable
 fun NailNailNavGraph(navController: NavHostController = rememberNavController()) {
@@ -29,9 +30,14 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
                 onAddressClick = { navController.navigate(Routes.ADDRESS_SETTINGS) },
                 onNotificationClick = {},
                 onNeedUpgrade = {},
+                onStartEstimate = { navController.navigate(Routes.QUOTE_FLOW) },
                 onMagazineClick = {},
                 onEstimateClick = {}
             )
+        }
+
+        composable(Routes.QUOTE_FLOW) {
+            QuoteFlow(onFinish = { navController.popBackStack() })
         }
 
         composable(Routes.ADDRESS_SETTINGS) {

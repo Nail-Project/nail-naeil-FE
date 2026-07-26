@@ -43,6 +43,7 @@ fun MainScaffold(
     onAddressClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onNeedUpgrade: () -> Unit,
+    onStartEstimate: () -> Unit,
     onMagazineClick: (String) -> Unit,
     onEstimateClick: (EstimateSummary) -> Unit
 ) {
@@ -89,6 +90,7 @@ fun MainScaffold(
                     onAddressClick = onAddressClick,
                     onNotificationClick = onNotificationClick,
                     onNeedUpgrade = onNeedUpgrade,
+                    onStartEstimate = onStartEstimate,
                     onMagazineClick = onMagazineClick,
                     onEstimateClick = onEstimateClick
                 )

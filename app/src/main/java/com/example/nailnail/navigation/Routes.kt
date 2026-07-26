@@ -10,6 +10,8 @@ object Routes {
 
     const val MAIN = "main"
 
+    const val QUOTE_FLOW = "quote_flow"
+
     const val MAGAZINE_DETAIL = "magazine_detail/{magazineId}"
     fun magazineDetail(magazineId: String) = "magazine_detail/$magazineId"
 
