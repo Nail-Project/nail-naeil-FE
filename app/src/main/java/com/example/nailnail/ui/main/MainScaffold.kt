@@ -18,6 +18,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.nailnail.R
 import com.example.nailnail.navigation.MainTabRoutes
+import com.example.nailnail.ui.main.estimate.EstimateItem
 import com.example.nailnail.ui.main.estimate.EstimateListScreen
 import com.example.nailnail.ui.main.home.EstimateSummary
 import com.example.nailnail.ui.main.home.MainHomeScreen
@@ -45,7 +46,8 @@ fun MainScaffold(
     onNeedUpgrade: () -> Unit,
     onStartEstimate: () -> Unit,
     onMagazineClick: (String) -> Unit,
-    onEstimateClick: (EstimateSummary) -> Unit
+    onEstimateClick: (EstimateSummary) -> Unit,
+    onEstimateItemClick: (EstimateItem) -> Unit
 ) {
     val tabNavController = rememberNavController()
 
@@ -95,7 +97,9 @@ fun MainScaffold(
                     onEstimateClick = onEstimateClick
                 )
             }
-            composable(MainTabRoutes.ESTIMATE_LIST) { EstimateListScreen() }
+            composable(MainTabRoutes.ESTIMATE_LIST) {
+                EstimateListScreen(onItemClick = onEstimateItemClick)
+            }
             composable(MainTabRoutes.RESERVATION) { ReservationScreen() }
             composable(MainTabRoutes.MY) { MyScreen() }
         }
