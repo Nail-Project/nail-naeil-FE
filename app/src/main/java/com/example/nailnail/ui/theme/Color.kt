@@ -20,3 +20,13 @@ val PhotoPlaceholderGray = Color(0xFFD9D9D9)
 val DividerGray = Color(0xFFE0E0E0)
 val TextSecondary = Color(0xFF757575)
 val DangerRed = Color(0xFFE53935)
+
+// 견적받기 플로우 보조 색상
+val TextPlaceholder = Color(0xFFB3ABAB)
+val BorderLight = Color(0xFFE3DCDC)
+val ChipBackground = Color(0xFFF1ECEC)
+val ChipSelectedBg = Color(0xFFF7EEF0)
+val SheetScrim = Color(0x99000000)
+val MapBackground = Color(0xFFE7E3DE)
+val MapRoad = Color(0xFFD8B65A)
+val SuccessGreenBg = Color(0xFFEFE6E6)
