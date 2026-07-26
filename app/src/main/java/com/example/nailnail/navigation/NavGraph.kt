@@ -15,6 +15,9 @@ import com.example.nailnail.ui.main.my.EditProfileScreen
 import com.example.nailnail.ui.main.my.FavoriteDesignScreen
 import com.example.nailnail.ui.main.my.FavoriteShopScreen
 import com.example.nailnail.ui.main.my.MyInfoScreen
+import com.example.nailnail.ui.main.my.NoticeScreen
+import com.example.nailnail.ui.main.my.NotificationSettingScreen
+import com.example.nailnail.ui.main.my.TermsPolicyScreen
 import com.example.nailnail.ui.main.reservation.ReservationDetailScreen
 import com.example.nailnail.ui.onboarding.SplashScreen
 import com.example.nailnail.ui.quote.QuoteFlow
@@ -50,9 +53,9 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
                 onMyInfoClick = { navController.navigate(Routes.MY_INFO) },
                 onFavoriteDesignClick = { navController.navigate(Routes.FAVORITE_DESIGN) },
                 onFavoriteShopClick = { navController.navigate(Routes.FAVORITE_SHOP) },
-                onNotificationSettingClick = {},
-                onNoticeClick = {},
-                onTermsPolicyClick = {}
+                onNotificationSettingClick = { navController.navigate(Routes.NOTIFICATION_SETTING) },
+                onNoticeClick = { navController.navigate(Routes.NOTICE) },
+                onTermsPolicyClick = { navController.navigate(Routes.TERMS_POLICY) }
             )
         }
 
@@ -105,6 +108,18 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
 
         composable(Routes.FAVORITE_SHOP) {
             FavoriteShopScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(Routes.NOTIFICATION_SETTING) {
+            NotificationSettingScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(Routes.NOTICE) {
+            NoticeScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(Routes.TERMS_POLICY) {
+            TermsPolicyScreen(onBackClick = { navController.popBackStack() })
         }
 
         composable(Routes.ADDRESS_SETTINGS) {
