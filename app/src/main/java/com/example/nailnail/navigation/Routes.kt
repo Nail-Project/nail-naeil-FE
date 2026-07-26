@@ -12,6 +12,12 @@ object Routes {
 
     const val QUOTE_FLOW = "quote_flow"
 
+    const val ESTIMATE_COMPARISON = "estimate_comparison/{estimateId}"
+    fun estimateComparison(estimateId: String) = "estimate_comparison/$estimateId"
+
+    const val SHOP_DETAIL = "shop_detail/{shopId}"
+    fun shopDetail(shopId: String) = "shop_detail/$shopId"
+
     const val MAGAZINE_DETAIL = "magazine_detail/{magazineId}"
     fun magazineDetail(magazineId: String) = "magazine_detail/$magazineId"
 

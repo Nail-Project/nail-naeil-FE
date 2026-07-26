@@ -9,6 +9,8 @@ import com.example.nailnail.ui.main.MainScaffold
 import com.example.nailnail.ui.main.address.AddressEditScreen
 import com.example.nailnail.ui.main.address.AddressFormScreen
 import com.example.nailnail.ui.main.address.AddressSettingsScreen
+import com.example.nailnail.ui.main.estimate.EstimateComparisonScreen
+import com.example.nailnail.ui.main.estimate.ShopDetailScreen
 import com.example.nailnail.ui.onboarding.SplashScreen
 import com.example.nailnail.ui.quote.QuoteFlow
 
@@ -32,12 +34,34 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
                 onNeedUpgrade = {},
                 onStartEstimate = { navController.navigate(Routes.QUOTE_FLOW) },
                 onMagazineClick = {},
-                onEstimateClick = {}
+                onEstimateClick = {},
+                onEstimateItemClick = { item ->
+                    navController.navigate(Routes.estimateComparison(item.id))
+                }
             )
         }
 
         composable(Routes.QUOTE_FLOW) {
             QuoteFlow(onFinish = { navController.popBackStack() })
+        }
+
+        composable(Routes.ESTIMATE_COMPARISON) { backStackEntry ->
+            val estimateId = backStackEntry.arguments?.getString("estimateId").orEmpty()
+            EstimateComparisonScreen(
+                estimateId = estimateId,
+                onBackClick = { navController.popBackStack() },
+                onShopDetailClick = { shopId -> navController.navigate(Routes.shopDetail(shopId)) },
+                onReserveClick = {}
+            )
+        }
+
+        composable(Routes.SHOP_DETAIL) { backStackEntry ->
+            val shopId = backStackEntry.arguments?.getString("shopId").orEmpty()
+            ShopDetailScreen(
+                shopId = shopId,
+                onBackClick = { navController.popBackStack() },
+                onReserveClick = {}
+            )
         }
 
         composable(Routes.ADDRESS_SETTINGS) {
