@@ -18,6 +18,7 @@ private val WireframeColorScheme = lightColorScheme(
 fun NailNailTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = WireframeColorScheme,
+        typography = NailNailTypography,
         content = content
     )
 }
