@@ -22,7 +22,7 @@ import com.example.nailnail.ui.main.estimate.EstimateItem
 import com.example.nailnail.ui.main.estimate.EstimateListScreen
 import com.example.nailnail.ui.main.home.EstimateSummary
 import com.example.nailnail.ui.main.home.MainHomeScreen
-import com.example.nailnail.ui.main.my.MyScreen
+import com.example.nailnail.ui.main.my.MyPageScreen
 import com.example.nailnail.ui.main.reservation.ReservationListScreen
 
 private data class MainTab(
@@ -48,7 +48,14 @@ fun MainScaffold(
     onMagazineClick: (String) -> Unit,
     onEstimateClick: (EstimateSummary) -> Unit,
     onEstimateItemClick: (EstimateItem) -> Unit,
-    onReservationItemClick: (String) -> Unit
+    onReservationItemClick: (String) -> Unit,
+    onEditProfileClick: () -> Unit,
+    onMyInfoClick: () -> Unit,
+    onFavoriteDesignClick: () -> Unit,
+    onFavoriteShopClick: () -> Unit,
+    onNotificationSettingClick: () -> Unit,
+    onNoticeClick: () -> Unit,
+    onTermsPolicyClick: () -> Unit
 ) {
     val tabNavController = rememberNavController()
 
@@ -107,7 +114,17 @@ fun MainScaffold(
                     onStartEstimate = onStartEstimate
                 )
             }
-            composable(MainTabRoutes.MY) { MyScreen() }
+            composable(MainTabRoutes.MY) {
+                MyPageScreen(
+                    onEditProfileClick = onEditProfileClick,
+                    onMyInfoClick = onMyInfoClick,
+                    onFavoriteDesignClick = onFavoriteDesignClick,
+                    onFavoriteShopClick = onFavoriteShopClick,
+                    onNotificationSettingClick = onNotificationSettingClick,
+                    onNoticeClick = onNoticeClick,
+                    onTermsPolicyClick = onTermsPolicyClick
+                )
+            }
         }
     }
 }

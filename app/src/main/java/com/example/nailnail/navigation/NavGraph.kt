@@ -11,6 +11,8 @@ import com.example.nailnail.ui.main.address.AddressFormScreen
 import com.example.nailnail.ui.main.address.AddressSettingsScreen
 import com.example.nailnail.ui.main.estimate.EstimateComparisonScreen
 import com.example.nailnail.ui.main.estimate.ShopDetailScreen
+import com.example.nailnail.ui.main.my.EditProfileScreen
+import com.example.nailnail.ui.main.my.MyInfoScreen
 import com.example.nailnail.ui.main.reservation.ReservationDetailScreen
 import com.example.nailnail.ui.onboarding.SplashScreen
 import com.example.nailnail.ui.quote.QuoteFlow
@@ -41,7 +43,14 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
                 },
                 onReservationItemClick = { reservationId ->
                     navController.navigate(Routes.reservationDetail(reservationId))
-                }
+                },
+                onEditProfileClick = { navController.navigate(Routes.EDIT_PROFILE) },
+                onMyInfoClick = { navController.navigate(Routes.MY_INFO) },
+                onFavoriteDesignClick = {},
+                onFavoriteShopClick = {},
+                onNotificationSettingClick = {},
+                onNoticeClick = {},
+                onTermsPolicyClick = {}
             )
         }
 
@@ -75,6 +84,17 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
                 onBackClick = { navController.popBackStack() },
                 onCancelled = { navController.popBackStack() }
             )
+        }
+
+        composable(Routes.MY_INFO) {
+            MyInfoScreen(
+                onBackClick = { navController.popBackStack() },
+                onEditProfileClick = { navController.navigate(Routes.EDIT_PROFILE) }
+            )
+        }
+
+        composable(Routes.EDIT_PROFILE) {
+            EditProfileScreen(onBackClick = { navController.popBackStack() })
         }
 
         composable(Routes.ADDRESS_SETTINGS) {
