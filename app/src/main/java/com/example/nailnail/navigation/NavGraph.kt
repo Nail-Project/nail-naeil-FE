@@ -19,6 +19,10 @@ import com.example.nailnail.ui.main.my.NoticeScreen
 import com.example.nailnail.ui.main.my.NotificationSettingScreen
 import com.example.nailnail.ui.main.my.TermsPolicyScreen
 import com.example.nailnail.ui.main.reservation.ReservationDetailScreen
+import com.example.nailnail.ui.onboarding.KakaoConsentScreen
+import com.example.nailnail.ui.onboarding.LoginScreen
+import com.example.nailnail.ui.onboarding.PermissionScreen
+import com.example.nailnail.ui.onboarding.SignupCompleteScreen
 import com.example.nailnail.ui.onboarding.SplashScreen
 import com.example.nailnail.ui.quote.QuoteFlow
 
@@ -28,8 +32,37 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
         composable(Routes.SPLASH) {
             SplashScreen(
                 onTimeout = {
-                    navController.navigate(Routes.MAIN) {
+                    navController.navigate(Routes.PERMISSION) {
                         popUpTo(Routes.SPLASH) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Routes.PERMISSION) {
+            PermissionScreen(onContinue = { navController.navigate(Routes.LOGIN) })
+        }
+
+        composable(Routes.LOGIN) {
+            LoginScreen(
+                onKakaoLoginClick = { navController.navigate(Routes.KAKAO_CONSENT) },
+                onNaverLoginClick = {
+                    navController.navigate(Routes.MAIN) {
+                        popUpTo(Routes.PERMISSION) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Routes.KAKAO_CONSENT) {
+            KakaoConsentScreen(onAgreeClick = { navController.navigate(Routes.SIGNUP_COMPLETE) })
+        }
+
+        composable(Routes.SIGNUP_COMPLETE) {
+            SignupCompleteScreen(
+                onStartClick = {
+                    navController.navigate(Routes.MAIN) {
+                        popUpTo(Routes.PERMISSION) { inclusive = true }
                     }
                 }
             )
