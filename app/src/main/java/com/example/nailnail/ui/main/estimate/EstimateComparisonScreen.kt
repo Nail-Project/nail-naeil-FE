@@ -28,14 +28,20 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import com.example.nailnail.R
 import com.example.nailnail.ui.common.PhotoPlaceholder
 import com.example.nailnail.ui.main.estimate.components.ShopEstimateCard
+import com.example.nailnail.ui.main.reservation.Reservation
+import com.example.nailnail.ui.main.reservation.ReservationStatus
+import com.example.nailnail.ui.main.reservation.components.ReservationConfirmDialog
 import com.example.nailnail.ui.theme.DividerGray
 import com.example.nailnail.ui.theme.MutedRoseBgLight
 import com.example.nailnail.ui.theme.MutedRosePrimary
@@ -50,10 +56,12 @@ fun EstimateComparisonScreen(
     estimateId: String,
     onBackClick: () -> Unit,
     onShopDetailClick: (String) -> Unit,
-    onReserveClick: (String) -> Unit
+    onReservationConfirmed: (Reservation) -> Unit
 ) {
     val estimate = remember(estimateId) { MockEstimateItems.find { it.id == estimateId } }
     var selectedDateFilter by remember { mutableIntStateOf(0) }
+    var reservingShop by remember { mutableStateOf<ShopEstimate?>(null) }
+    var reservingDateTime by remember { mutableStateOf("") }
 
     Scaffold(
         containerColor = SurfaceWhite,
@@ -144,9 +152,43 @@ fun EstimateComparisonScreen(
                 ShopEstimateCard(
                     shop = shop,
                     onDetailClick = { onShopDetailClick(shop.id) },
-                    onReserveClick = { onReserveClick(shop.id) }
+                    onReserveClick = { dateTime ->
+                        reservingShop = shop
+                        reservingDateTime = dateTime
+                    }
                 )
             }
+        }
+    }
+
+    val shop = reservingShop
+    if (shop != null) {
+        Dialog(onDismissRequest = { reservingShop = null }) {
+            ReservationConfirmDialog(
+                shopName = shop.shopName,
+                dateTime = reservingDateTime.replace("\n", " · "),
+                priceText = shop.priceText.orEmpty(),
+                onDismiss = { reservingShop = null },
+                onConfirm = {
+                    reservingShop = null
+                    onReservationConfirmed(
+                        Reservation(
+                            id = "r${System.currentTimeMillis()}",
+                            status = ReservationStatus.CONFIRMED,
+                            dateTime = reservingDateTime.replace("\n", " · "),
+                            shopName = shop.shopName,
+                            design = estimate?.styleKeywords.orEmpty(),
+                            option = "",
+                            price = shop.priceText.orEmpty().filter { it.isDigit() }.toIntOrNull() ?: 0,
+                            imageRes = R.drawable.img_nail_1,
+                            rating = shop.rating.orEmpty(),
+                            distance = shop.distance.orEmpty(),
+                            comment = shop.comment.orEmpty(),
+                            basePrice = shop.priceText.orEmpty().filter { it.isDigit() }.toIntOrNull() ?: 0
+                        )
+                    )
+                }
+            )
         }
     }
 }

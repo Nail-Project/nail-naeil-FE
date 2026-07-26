@@ -39,7 +39,7 @@ import com.example.nailnail.ui.theme.TextSecondary
 fun ShopEstimateCard(
     shop: ShopEstimate,
     onDetailClick: () -> Unit,
-    onReserveClick: () -> Unit,
+    onReserveClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -95,6 +95,7 @@ fun ShopEstimateCard(
                 Text("응답 대기중")
             }
         } else {
+            var selectedSlot by remember { mutableIntStateOf(0) }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -158,7 +159,6 @@ fun ShopEstimateCard(
             }
 
             if (shop.timeSlots.isNotEmpty()) {
-                var selectedSlot by remember { mutableIntStateOf(0) }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -203,7 +203,10 @@ fun ShopEstimateCard(
                     Text("상세보기")
                 }
                 Button(
-                    onClick = onReserveClick,
+                    onClick = {
+                        val dateTime = shop.timeSlots.getOrNull(selectedSlot).orEmpty()
+                        onReserveClick(dateTime)
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = MutedRosePrimary),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier

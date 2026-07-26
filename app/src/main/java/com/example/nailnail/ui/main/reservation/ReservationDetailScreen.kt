@@ -247,7 +247,11 @@ fun ReservationDetailScreen(reservationId: String, onBackClick: () -> Unit, onCa
 
     if (activeSheet != ReservationSheet.NONE && reservation != null) {
         val sheetState = rememberModalBottomSheetState()
-        ModalBottomSheet(onDismissRequest = { activeSheet = ReservationSheet.NONE }, sheetState = sheetState) {
+        ModalBottomSheet(
+            onDismissRequest = { activeSheet = ReservationSheet.NONE },
+            sheetState = sheetState,
+            containerColor = SurfaceWhite
+        ) {
             when (activeSheet) {
                 ReservationSheet.CANCEL_CONFIRM -> ReservationCancelConfirmSheet(
                     reservation = reservation,

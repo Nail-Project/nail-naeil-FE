@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -60,7 +61,7 @@ fun ReservationChangeDialog(onDismiss: () -> Unit) {
         ) {
             OutlinedButton(
                 onClick = onDismiss,
-                modifier = Modifier.weight(0.9f).height(54.dp)
+                modifier = Modifier.weight(0.8f).height(54.dp)
             ) {
                 Text("이전으로")
             }
@@ -71,9 +72,15 @@ fun ReservationChangeDialog(onDismiss: () -> Unit) {
                     onDismiss()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MutedRosePrimary),
-                modifier = Modifier.weight(1.35f).height(54.dp)
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                modifier = Modifier.weight(1.45f).height(54.dp)
             ) {
-                Text("샵 연락처 복사하기")
+                Text(
+                    text = "샵 연락처 복사하기",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
             }
         }
     }

@@ -112,7 +112,10 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
                 estimateId = estimateId,
                 onBackClick = { navController.popBackStack() },
                 onShopDetailClick = { shopId -> navController.navigate(Routes.shopDetail(shopId)) },
-                onReserveClick = {}
+                onReservationConfirmed = { reservation ->
+                    ReservationMockState.addConfirmed(reservation)
+                    navController.navigate(Routes.RESERVATION_COMPLETE)
+                }
             )
         }
 
