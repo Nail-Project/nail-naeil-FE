@@ -2,6 +2,7 @@ package com.example.nailnail.ui.main.estimate
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -55,6 +56,7 @@ fun EstimateComparisonScreen(
     var selectedDateFilter by remember { mutableIntStateOf(0) }
 
     Scaffold(
+        containerColor = SurfaceWhite,
         topBar = {
             TopAppBar(
                 title = { Text("견적 비교 결과") },
@@ -123,6 +125,7 @@ fun EstimateComparisonScreen(
                                     if (selected) MutedRosePrimary else DividerGray,
                                     RoundedCornerShape(6.dp)
                                 )
+                                .clickable { selectedDateFilter = index }
                                 .padding(horizontal = 12.dp, vertical = 8.dp)
                         )
                     }

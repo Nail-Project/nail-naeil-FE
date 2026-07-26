@@ -19,7 +19,9 @@ val MockShopEstimates = listOf(
         id = "s1",
         shopName = "나나네일",
         isWaiting = true,
-        averageResponseTime = "평균 응답시간 : 2.5시간"
+        averageResponseTime = "평균 응답시간 : 2.5시간",
+        rating = "★ 4.7 (203)",
+        distance = "내 위치에서 2.1km"
     ),
     ShopEstimate(
         id = "s2",

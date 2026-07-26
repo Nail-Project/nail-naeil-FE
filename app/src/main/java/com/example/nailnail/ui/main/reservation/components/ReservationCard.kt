@@ -124,6 +124,7 @@ fun ReservationCard(
             ReservationStatus.CONFIRMED -> {
                 OutlinedButton(
                     onClick = onDetailClick,
+                    shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 14.dp)
@@ -140,7 +141,7 @@ fun ReservationCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
-                        .clip(RoundedCornerShape(7.dp))
+                        .clip(RoundedCornerShape(8.dp))
                         .background(DangerBgLight)
                         .clickable(onClick = onDetailClick)
                         .padding(vertical = 13.dp)
@@ -157,7 +158,7 @@ fun ReservationCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 14.dp)
-                        .clip(RoundedCornerShape(7.dp))
+                        .clip(RoundedCornerShape(8.dp))
                         .background(DividerGray)
                         .padding(vertical = 13.dp)
                 )

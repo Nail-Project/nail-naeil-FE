@@ -28,6 +28,7 @@ import com.example.nailnail.ui.main.home.components.EstimateUploadCard
 import com.example.nailnail.ui.main.home.components.InProgressEstimateSection
 import com.example.nailnail.ui.main.home.components.MagazineSection
 import com.example.nailnail.ui.main.address.AddressMockState
+import com.example.nailnail.ui.theme.SurfaceWhite
 
 @Composable
 fun MainHomeScreen(
@@ -50,7 +51,7 @@ fun MainHomeScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(SurfaceWhite)
             .padding(horizontal = 20.dp)
     ) {
         item {

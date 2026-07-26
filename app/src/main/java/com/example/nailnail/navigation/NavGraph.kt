@@ -1,6 +1,10 @@
 package com.example.nailnail.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,7 +22,9 @@ import com.example.nailnail.ui.main.my.MyInfoScreen
 import com.example.nailnail.ui.main.my.NoticeScreen
 import com.example.nailnail.ui.main.my.NotificationSettingScreen
 import com.example.nailnail.ui.main.my.TermsPolicyScreen
+import com.example.nailnail.ui.main.reservation.ReservationCompleteScreen
 import com.example.nailnail.ui.main.reservation.ReservationDetailScreen
+import com.example.nailnail.ui.main.reservation.ReservationMockState
 import com.example.nailnail.ui.onboarding.KakaoConsentScreen
 import com.example.nailnail.ui.onboarding.LoginScreen
 import com.example.nailnail.ui.onboarding.PermissionScreen
@@ -28,6 +34,8 @@ import com.example.nailnail.ui.quote.QuoteFlow
 
 @Composable
 fun NailNailNavGraph(navController: NavHostController = rememberNavController()) {
+    var mainSelectedTab by remember { mutableStateOf(MainTabRoutes.HOME) }
+
     NavHost(navController = navController, startDestination = Routes.SPLASH) {
         composable(Routes.SPLASH) {
             SplashScreen(
@@ -70,6 +78,8 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
 
         composable(Routes.MAIN) {
             MainScaffold(
+                selectedTab = mainSelectedTab,
+                onTabSelected = { mainSelectedTab = it },
                 onAddressClick = { navController.navigate(Routes.ADDRESS_SETTINGS) },
                 onNotificationClick = {},
                 onNeedUpgrade = {},
@@ -111,7 +121,19 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
             ShopDetailScreen(
                 shopId = shopId,
                 onBackClick = { navController.popBackStack() },
-                onReserveClick = {}
+                onReservationConfirmed = { reservation ->
+                    ReservationMockState.addConfirmed(reservation)
+                    navController.navigate(Routes.RESERVATION_COMPLETE)
+                }
+            )
+        }
+
+        composable(Routes.RESERVATION_COMPLETE) {
+            ReservationCompleteScreen(
+                onGoToReservations = {
+                    mainSelectedTab = MainTabRoutes.RESERVATION
+                    navController.popBackStack(Routes.MAIN, inclusive = false)
+                }
             )
         }
 

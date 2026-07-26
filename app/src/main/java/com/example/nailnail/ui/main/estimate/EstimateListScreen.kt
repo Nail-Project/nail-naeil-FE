@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.nailnail.ui.main.estimate.components.EstimateCard
 import com.example.nailnail.ui.theme.MutedRosePrimary
+import com.example.nailnail.ui.theme.SurfaceWhite
 import com.example.nailnail.ui.theme.TextDisabled
 
 private val EstimateTabs = listOf("전체", "진행중")
@@ -36,7 +37,7 @@ fun EstimateListScreen(onItemClick: (EstimateItem) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(SurfaceWhite)
     ) {
         Text(
             text = "견적함",

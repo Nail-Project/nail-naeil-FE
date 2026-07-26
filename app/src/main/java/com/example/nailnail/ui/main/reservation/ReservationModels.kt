@@ -98,4 +98,8 @@ object ReservationMockState {
         confirmedList.remove(target)
         pastList.add(0, target.copy(status = ReservationStatus.CANCELLED))
     }
+
+    fun addConfirmed(reservation: Reservation) {
+        confirmedList.add(0, reservation)
+    }
 }

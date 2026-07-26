@@ -64,6 +64,7 @@ fun ReservationDetailScreen(reservationId: String, onBackClick: () -> Unit, onCa
     val context = LocalContext.current
 
     Scaffold(
+        containerColor = SurfaceWhite,
         topBar = {
             TopAppBar(
                 title = { Text("확정된 예약") },
@@ -85,12 +86,14 @@ fun ReservationDetailScreen(reservationId: String, onBackClick: () -> Unit, onCa
                     Button(
                         onClick = { activeSheet = ReservationSheet.CANCEL_CONFIRM },
                         colors = ButtonDefaults.buttonColors(containerColor = DangerBgLight, contentColor = DangerRed),
+                        shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.weight(1f).height(56.dp)
                     ) {
                         Text("예약 취소", fontWeight = FontWeight.Bold)
                     }
                     OutlinedButton(
                         onClick = { showChangeDialog = true },
+                        shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.weight(1f).height(56.dp)
                     ) {
                         Text("예약 변경", fontWeight = FontWeight.Bold)

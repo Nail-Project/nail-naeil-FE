@@ -58,7 +58,7 @@ fun MyPageScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(SurfaceWhite)
     ) {
         item {
             Text(

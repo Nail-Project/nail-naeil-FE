@@ -11,7 +11,14 @@ private val WireframeColorScheme = lightColorScheme(
     surface = SurfaceWhite,       // #FFFFFF (카드나 컨테이너용)
     onPrimary = SurfaceWhite,     // 메인 버튼 위의 글자색 (흰색)
     onBackground = TextMain,      // 일반 배경 위의 글자색 (검은색)
-    onSurface = TextMain          // 흰색 카드 위의 글자색 (검은색)
+    onSurface = TextMain,         // 흰색 카드 위의 글자색 (검은색)
+    // Material3 기본값(보라 계열)이 하단 탭바 선택 표시 등에 그대로 노출되지 않도록 명시적으로 지정
+    secondary = MutedRosePrimary,
+    secondaryContainer = MutedRoseBgLight,
+    onSecondaryContainer = MutedRosePrimary,
+    surfaceVariant = AppBackground,
+    onSurfaceVariant = TextSecondary,
+    outline = DividerGray
 )
 
 @Composable

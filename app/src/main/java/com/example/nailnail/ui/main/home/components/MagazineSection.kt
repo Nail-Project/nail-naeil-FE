@@ -4,14 +4,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -61,21 +61,32 @@ fun MagazineSection(
             }
         }
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+        Column(
             modifier = Modifier
                 .padding(top = 12.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .fillMaxWidth()
         ) {
-            items(items) { item ->
-                MagazineCard(
-                    item = item,
-                    isLiked = likedIds.contains(item.id),
-                    onLikeToggle = { onLikeToggle(item.id) },
-                    onClick = { onItemClick(item) }
-                )
+            items.chunked(2).forEachIndexed { index, rowItems ->
+                if (index > 0) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    rowItems.forEach { item ->
+                        MagazineCard(
+                            item = item,
+                            isLiked = likedIds.contains(item.id),
+                            onLikeToggle = { onLikeToggle(item.id) },
+                            onClick = { onItemClick(item) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    if (rowItems.size == 1) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
             }
         }
     }
@@ -86,9 +97,10 @@ private fun MagazineCard(
     item: MagazineItem,
     isLiked: Boolean,
     onLikeToggle: () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column(modifier = Modifier.clickable(onClick = onClick)) {
+    Column(modifier = modifier.clickable(onClick = onClick)) {
         Box {
             PhotoPlaceholder(modifier = Modifier.aspectRatio(1f))
             Icon(

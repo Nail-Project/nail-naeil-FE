@@ -28,7 +28,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.nailnail.ui.main.estimate.ShopEstimate
-import com.example.nailnail.ui.theme.AppBackground
 import com.example.nailnail.ui.theme.DividerGray
 import com.example.nailnail.ui.theme.MutedRoseBgLight
 import com.example.nailnail.ui.theme.MutedRosePrimary
@@ -66,15 +65,28 @@ fun ShopEstimateCard(
                     Text(text = "제거비 포함", style = MaterialTheme.typography.labelSmall, color = TextDisabled)
                 }
             }
-            Text(
-                text = shop.shopName,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 12.dp)
-            )
+            Row(
+                modifier = Modifier.padding(top = 12.dp),
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            ) {
+                Text(
+                    text = shop.shopName,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                if (shop.rating != null) {
+                    Text(
+                        text = shop.rating,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
             OutlinedButton(
                 onClick = {},
                 enabled = false,
+                shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp)
@@ -93,9 +105,10 @@ fun ShopEstimateCard(
                         style = MaterialTheme.typography.labelSmall,
                         color = MutedRosePrimary,
                         modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
+                            .clip(RoundedCornerShape(6.dp))
                             .background(MutedRoseBgLight)
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .border(1.dp, MutedRosePrimary, RoundedCornerShape(6.dp))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 } else {
                     Spacer(modifier = Modifier)
@@ -132,7 +145,7 @@ fun ShopEstimateCard(
                         .fillMaxWidth()
                         .padding(top = 16.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(AppBackground)
+                        .background(MutedRoseBgLight)
                         .padding(12.dp)
                 ) {
                     Text(text = "샵 코멘트", style = MaterialTheme.typography.labelSmall, color = TextDisabled)
@@ -182,6 +195,7 @@ fun ShopEstimateCard(
             ) {
                 OutlinedButton(
                     onClick = onDetailClick,
+                    shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp)
@@ -191,6 +205,7 @@ fun ShopEstimateCard(
                 Button(
                     onClick = onReserveClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MutedRosePrimary),
+                    shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp)

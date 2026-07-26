@@ -11,10 +11,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,11 +29,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.nailnail.ui.main.reservation.components.ReservationCard
 import com.example.nailnail.ui.theme.MutedRosePrimary
+import com.example.nailnail.ui.theme.SurfaceWhite
 import com.example.nailnail.ui.theme.TextDisabled
 import com.example.nailnail.ui.theme.TextSecondary
 
@@ -43,7 +50,7 @@ fun ReservationListScreen(onReservationClick: (String) -> Unit, onStartEstimate:
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(SurfaceWhite)
     ) {
         Text(
             text = "예약",
@@ -159,15 +166,25 @@ private fun ConfirmedReservationTab(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp)
+                    .clip(RoundedCornerShape(10.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
                     .padding(20.dp)
             ) {
-                Text(
-                    text = "ⓘ  방문 전 확인해주세요",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = TextSecondary
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Outlined.Info,
+                        contentDescription = null,
+                        tint = TextSecondary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Text(
+                        text = "방문 전 확인해주세요",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = TextSecondary,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
                 Text(
                     text = "기존 젤 제거가 포함된 시술입니다. 예약 시간보다 10분 일찍 방문해 주시면 더욱 원활한 시술이 가능합니다.",
                     style = MaterialTheme.typography.bodySmall,

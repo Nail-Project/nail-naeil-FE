@@ -21,6 +21,8 @@ object Routes {
     const val RESERVATION_DETAIL = "reservation_detail/{reservationId}"
     fun reservationDetail(reservationId: String) = "reservation_detail/$reservationId"
 
+    const val RESERVATION_COMPLETE = "reservation_complete"
+
     const val MY_INFO = "my_info"
     const val EDIT_PROFILE = "edit_profile"
     const val FAVORITE_DESIGN = "favorite_design"

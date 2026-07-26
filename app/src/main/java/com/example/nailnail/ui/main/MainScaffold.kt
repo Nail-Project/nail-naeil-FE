@@ -1,21 +1,19 @@
 package com.example.nailnail.ui.main
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.example.nailnail.R
 import com.example.nailnail.navigation.MainTabRoutes
 import com.example.nailnail.ui.main.estimate.EstimateItem
@@ -24,6 +22,9 @@ import com.example.nailnail.ui.main.home.EstimateSummary
 import com.example.nailnail.ui.main.home.MainHomeScreen
 import com.example.nailnail.ui.main.my.MyPageScreen
 import com.example.nailnail.ui.main.reservation.ReservationListScreen
+import com.example.nailnail.ui.theme.SurfaceWhite
+import com.example.nailnail.ui.theme.TextDisabled
+import com.example.nailnail.ui.theme.TextMain
 
 private data class MainTab(
     val route: String,
@@ -41,6 +42,8 @@ private val mainTabs = listOf(
 
 @Composable
 fun MainScaffold(
+    selectedTab: String,
+    onTabSelected: (String) -> Unit,
     onAddressClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onNeedUpgrade: () -> Unit,
@@ -57,46 +60,37 @@ fun MainScaffold(
     onNoticeClick: () -> Unit,
     onTermsPolicyClick: () -> Unit
 ) {
-    val tabNavController = rememberNavController()
-
     Scaffold(
+        containerColor = SurfaceWhite,
         bottomBar = {
-            val backStackEntry by tabNavController.currentBackStackEntryAsState()
-            val currentRoute = backStackEntry?.destination?.route
-
-            NavigationBar {
+            NavigationBar(containerColor = SurfaceWhite) {
                 mainTabs.forEach { tab ->
-                    val selected = currentRoute == tab.route
+                    val selected = selectedTab == tab.route
                     NavigationBarItem(
                         selected = selected,
-                        onClick = {
-                            tabNavController.navigate(tab.route) {
-                                popUpTo(tabNavController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
+                        onClick = { onTabSelected(tab.route) },
                         icon = {
                             Icon(
                                 painter = painterResource(id = if (selected) tab.selectedIcon else tab.icon),
                                 contentDescription = tab.label
                             )
                         },
-                        label = { Text(tab.label) }
+                        label = { Text(tab.label) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = TextMain,
+                            selectedTextColor = TextMain,
+                            unselectedIconColor = TextDisabled,
+                            unselectedTextColor = TextDisabled,
+                            indicatorColor = Color.Transparent
+                        )
                     )
                 }
             }
         }
     ) { padding ->
-        NavHost(
-            navController = tabNavController,
-            startDestination = MainTabRoutes.HOME,
-            modifier = Modifier.padding(padding)
-        ) {
-            composable(MainTabRoutes.HOME) {
-                MainHomeScreen(
+        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+            when (selectedTab) {
+                MainTabRoutes.HOME -> MainHomeScreen(
                     onAddressClick = onAddressClick,
                     onNotificationClick = onNotificationClick,
                     onNeedUpgrade = onNeedUpgrade,
@@ -104,18 +98,12 @@ fun MainScaffold(
                     onMagazineClick = onMagazineClick,
                     onEstimateClick = onEstimateClick
                 )
-            }
-            composable(MainTabRoutes.ESTIMATE_LIST) {
-                EstimateListScreen(onItemClick = onEstimateItemClick)
-            }
-            composable(MainTabRoutes.RESERVATION) {
-                ReservationListScreen(
+                MainTabRoutes.ESTIMATE_LIST -> EstimateListScreen(onItemClick = onEstimateItemClick)
+                MainTabRoutes.RESERVATION -> ReservationListScreen(
                     onReservationClick = onReservationItemClick,
                     onStartEstimate = onStartEstimate
                 )
-            }
-            composable(MainTabRoutes.MY) {
-                MyPageScreen(
+                MainTabRoutes.MY -> MyPageScreen(
                     onEditProfileClick = onEditProfileClick,
                     onMyInfoClick = onMyInfoClick,
                     onFavoriteDesignClick = onFavoriteDesignClick,
