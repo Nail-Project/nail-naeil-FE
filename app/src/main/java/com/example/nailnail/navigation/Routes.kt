@@ -23,6 +23,8 @@ object Routes {
 
     const val MY_INFO = "my_info"
     const val EDIT_PROFILE = "edit_profile"
+    const val FAVORITE_DESIGN = "favorite_design"
+    const val FAVORITE_SHOP = "favorite_shop"
 
     const val MAGAZINE_DETAIL = "magazine_detail/{magazineId}"
     fun magazineDetail(magazineId: String) = "magazine_detail/$magazineId"
