@@ -2,6 +2,7 @@ package com.example.nailnaeil.data.repository
 
 import com.example.nailnaeil.data.local.TokenStore
 import com.example.nailnaeil.data.remote.DeviceTokenApi
+import com.example.nailnaeil.data.remote.apiCallUnit
 import com.example.nailnaeil.data.remote.dto.DeviceTokenRequest
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
@@ -16,19 +17,21 @@ class DeviceTokenRepository(
     private val tokenStore: TokenStore
 ) {
 
-    suspend fun registerCurrentDeviceToken(): Result<Unit> = runCatching {
-        val fcmToken = FirebaseMessaging.getInstance().token.await()
-        registerDeviceToken(fcmToken)
+    suspend fun registerCurrentDeviceToken(): Result<Unit> {
+        val fcmToken = runCatching { FirebaseMessaging.getInstance().token.await() }
+            .getOrElse { return Result.failure(it) }
+        return registerDeviceToken(fcmToken)
     }
 
-    suspend fun registerDeviceToken(fcmToken: String) {
-        api.registerDeviceToken(DeviceTokenRequest(token = fcmToken))
-        tokenStore.registeredDeviceToken = fcmToken
+    suspend fun registerDeviceToken(fcmToken: String): Result<Unit> {
+        return apiCallUnit { api.registerDeviceToken(DeviceTokenRequest(token = fcmToken)) }
+            .onSuccess { tokenStore.registeredDeviceToken = fcmToken }
     }
 
-    suspend fun unregisterCurrentDeviceToken(): Result<Unit> = runCatching {
-        val fcmToken = tokenStore.registeredDeviceToken ?: FirebaseMessaging.getInstance().token.await()
-        api.unregisterDeviceToken(DeviceTokenRequest(token = fcmToken))
-        tokenStore.registeredDeviceToken = null
+    suspend fun unregisterCurrentDeviceToken(): Result<Unit> {
+        val fcmToken = tokenStore.registeredDeviceToken
+            ?: runCatching { FirebaseMessaging.getInstance().token.await() }.getOrElse { return Result.failure(it) }
+        return apiCallUnit { api.unregisterDeviceToken(DeviceTokenRequest(token = fcmToken)) }
+            .onSuccess { tokenStore.registeredDeviceToken = null }
     }
 }
