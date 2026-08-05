@@ -20,8 +20,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // TODO: 실 서버 주소가 정해지면 교체
-        buildConfigField("String", "BASE_URL", "\"http://localhost:3000/\"")
+        buildConfigField("String", "BASE_URL", "\"https://api.nail-naeil.shop/\"")
     }
 
     buildTypes {
