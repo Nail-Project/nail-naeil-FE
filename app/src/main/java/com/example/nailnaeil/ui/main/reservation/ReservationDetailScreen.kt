@@ -15,10 +15,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -31,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +42,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.nailnaeil.R
+import com.example.nailnaeil.data.remote.dto.ReservationDetailResponse
+import com.example.nailnaeil.data.repository.ReservationRepository
 import com.example.nailnaeil.ui.main.reservation.components.ReservationCancelConfirmSheet
 import com.example.nailnaeil.ui.main.reservation.components.ReservationCancelReasonSheet
 import com.example.nailnaeil.ui.main.reservation.components.ReservationChangeDialog
@@ -52,248 +55,626 @@ import com.example.nailnaeil.ui.theme.MutedRoseBgLight
 import com.example.nailnaeil.ui.theme.MutedRosePrimary
 import com.example.nailnaeil.ui.theme.SurfaceWhite
 import com.example.nailnaeil.ui.theme.TextSecondary
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
-private enum class ReservationSheet { NONE, CANCEL_CONFIRM, CANCEL_REASON }
+private enum class ReservationSheet {
+    NONE,
+    CANCEL_CONFIRM,
+    CANCEL_REASON
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReservationDetailScreen(reservationId: String, onBackClick: () -> Unit, onCancelled: () -> Unit) {
-    val reservation = remember(reservationId) { ReservationMockState.findById(reservationId) }
-    var activeSheet by remember { mutableStateOf(ReservationSheet.NONE) }
-    var showChangeDialog by remember { mutableStateOf(false) }
+fun ReservationDetailScreen(
+    reservationId: String,
+    reservationRepository: ReservationRepository,
+    onBackClick: () -> Unit,
+    onCancelled: () -> Unit
+) {
+    var reservation by remember(
+        reservationId
+    ) {
+        mutableStateOf<Reservation?>(null)
+    }
+
+    var isLoading by remember(
+        reservationId
+    ) {
+        mutableStateOf(true)
+    }
+
+    var errorMessage by remember(
+        reservationId
+    ) {
+        mutableStateOf<String?>(null)
+    }
+
+    var retryCount by remember {
+        mutableStateOf(0)
+    }
+
+    var activeSheet by remember {
+        mutableStateOf(ReservationSheet.NONE)
+    }
+
+    var showChangeDialog by remember {
+        mutableStateOf(false)
+    }
+
     val context = LocalContext.current
+
+    LaunchedEffect(
+        reservationId,
+        retryCount
+    ) {
+        isLoading = true
+        errorMessage = null
+
+        val parsedReservationId =
+            reservationId.toLongOrNull()
+
+        if (parsedReservationId == null) {
+            isLoading = false
+            errorMessage =
+                "유효하지 않은 예약 id입니다."
+            return@LaunchedEffect
+        }
+
+        reservationRepository
+            .getReservationDetail(
+                reservationId =
+                    parsedReservationId
+            )
+            .onSuccess { response ->
+                reservation =
+                    response.toReservation()
+            }
+            .onFailure { exception ->
+                reservation = null
+                errorMessage =
+                    exception.message
+                        ?: "예약 정보를 불러오지 못했습니다."
+            }
+
+        isLoading = false
+    }
 
     Scaffold(
         containerColor = SurfaceWhite,
+
         topBar = {
             TopAppBar(
-                title = { Text("확정된 예약") },
+                title = {
+                    Text("확정된 예약")
+                },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "뒤로가기")
+                    IconButton(
+                        onClick = onBackClick
+                    ) {
+                        Icon(
+                            imageVector =
+                                Icons.Filled.ArrowBack,
+                            contentDescription =
+                                "뒤로가기"
+                        )
                     }
                 }
             )
         },
+
         bottomBar = {
             if (reservation != null) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(SurfaceWhite)
                         .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement =
+                        Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = { activeSheet = ReservationSheet.CANCEL_CONFIRM },
-                        colors = ButtonDefaults.buttonColors(containerColor = DangerBgLight, contentColor = DangerRed),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.weight(1f).height(56.dp)
+                        onClick = {
+                            activeSheet =
+                                ReservationSheet
+                                    .CANCEL_CONFIRM
+                        },
+                        colors =
+                            ButtonDefaults
+                                .buttonColors(
+                                    containerColor =
+                                        DangerBgLight,
+                                    contentColor =
+                                        DangerRed
+                                ),
+                        shape =
+                            RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp)
                     ) {
-                        Text("예약 취소", fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "예약 취소",
+                            fontWeight =
+                                FontWeight.Bold
+                        )
                     }
+
                     OutlinedButton(
-                        onClick = { showChangeDialog = true },
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.weight(1f).height(56.dp)
+                        onClick = {
+                            showChangeDialog = true
+                        },
+                        shape =
+                            RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp)
                     ) {
-                        Text("예약 변경", fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "예약 변경",
+                            fontWeight =
+                                FontWeight.Bold
+                        )
                     }
                 }
             }
         }
     ) { padding ->
-        if (reservation == null) {
-            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Text("예약 정보를 찾을 수 없어요", color = TextSecondary)
-            }
-            return@Scaffold
-        }
 
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
-            item {
-                Row(
+        when {
+            isLoading -> {
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MutedRoseBgLight)
-                        .padding(horizontal = 16.dp, vertical = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment =
+                        Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = MutedRosePrimary
+                    )
+                }
+            }
+
+            errorMessage != null -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(24.dp),
+                    horizontalAlignment =
+                        Alignment.CenterHorizontally,
+                    verticalArrangement =
+                        Arrangement.Center
                 ) {
                     Text(
-                        text = "시술예정",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = SurfaceWhite,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(5.dp))
-                            .background(MutedRosePrimary)
-                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                        text = errorMessage
+                            ?: "오류가 발생했습니다.",
+                        style =
+                            MaterialTheme
+                                .typography
+                                .bodyLarge,
+                        color = TextSecondary
                     )
-                    Text(
-                        text = reservation.dateTime,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MutedRosePrimary,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
 
-            item {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Text(text = reservation.shopName, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                    Row(modifier = Modifier.padding(top = 10.dp)) {
-                        Text(
-                            text = "${reservation.rating} · ${reservation.distance}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TextSecondary
-                        )
-                    }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 17.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    Button(
+                        onClick = {
+                            retryCount += 1
+                        },
+                        modifier =
+                            Modifier.padding(
+                                top = 20.dp
+                            ),
+                        colors =
+                            ButtonDefaults
+                                .buttonColors(
+                                    containerColor =
+                                        MutedRosePrimary
+                                )
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.LocationOn, contentDescription = null, tint = MutedRosePrimary, modifier = Modifier.height(20.dp))
-                            Text(
-                                text = reservation.address,
-                                style = MaterialTheme.typography.bodyMedium,
-                                maxLines = 1,
-                                modifier = Modifier.padding(start = 10.dp)
-                            )
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.Map, contentDescription = "지도에서 위치 확인", tint = MutedRosePrimary, modifier = Modifier.height(22.dp))
-                            Text(
-                                text = "위치",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MutedRosePrimary,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(start = 5.dp)
-                            )
-                        }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Filled.Schedule, contentDescription = null, modifier = Modifier.height(20.dp))
-                        Text(
-                            text = reservation.closedDays,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(start = 10.dp)
-                        )
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 24.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .padding(16.dp)
-                    ) {
-                        Text(text = "샵 코멘트", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = TextSecondary)
-                        Text(
-                            text = reservation.comment,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(top = 13.dp)
-                        )
+                        Text("다시 시도")
                     }
                 }
             }
 
-            item { HorizontalDivider(color = DividerGray, modifier = Modifier.padding(horizontal = 16.dp)) }
-
-            item {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Text(text = "견적서", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 18.dp)
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(SurfaceWhite)
-                            .padding(16.dp)
-                    ) {
-                        PriceRow("기본 가격", reservation.basePrice)
-                        PriceRow("디자인 추가", reservation.designPrice)
-                        PriceRow("옵션 추가 (1)", reservation.optionPrice)
-                        PriceRow("쿠폰 할인", -reservation.couponDiscount)
-
-                        HorizontalDivider(color = DividerGray, modifier = Modifier.padding(vertical = 8.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(text = "최종 예상 금액", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                            Text(
-                                text = "%,d원".format(reservation.finalPrice),
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = MutedRosePrimary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
+            reservation != null -> {
+                ReservationDetailContent(
+                    reservation =
+                        requireNotNull(
+                            reservation
+                        ),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                )
             }
         }
     }
 
-    if (activeSheet != ReservationSheet.NONE && reservation != null) {
-        val sheetState = rememberModalBottomSheetState()
+    val currentReservation =
+        reservation
+
+    if (
+        activeSheet !=
+        ReservationSheet.NONE &&
+        currentReservation != null
+    ) {
+        val sheetState =
+            rememberModalBottomSheetState()
+
         ModalBottomSheet(
-            onDismissRequest = { activeSheet = ReservationSheet.NONE },
+            onDismissRequest = {
+                activeSheet =
+                    ReservationSheet.NONE
+            },
             sheetState = sheetState,
             containerColor = SurfaceWhite
         ) {
             when (activeSheet) {
-                ReservationSheet.CANCEL_CONFIRM -> ReservationCancelConfirmSheet(
-                    reservation = reservation,
-                    onKeepReservation = { activeSheet = ReservationSheet.NONE },
-                    onConfirmCancel = { activeSheet = ReservationSheet.CANCEL_REASON }
-                )
+                ReservationSheet
+                    .CANCEL_CONFIRM -> {
 
-                ReservationSheet.CANCEL_REASON -> ReservationCancelReasonSheet(
-                    onBack = { activeSheet = ReservationSheet.NONE },
-                    onComplete = {
-                        ReservationMockState.cancel(reservation.id)
-                        activeSheet = ReservationSheet.NONE
-                        Toast.makeText(context, "예약이 취소되었습니다.", Toast.LENGTH_SHORT).show()
-                        onCancelled()
-                    }
-                )
+                    ReservationCancelConfirmSheet(
+                        reservation =
+                            currentReservation,
+                        onKeepReservation = {
+                            activeSheet =
+                                ReservationSheet.NONE
+                        },
+                        onConfirmCancel = {
+                            activeSheet =
+                                ReservationSheet
+                                    .CANCEL_REASON
+                        }
+                    )
+                }
 
-                ReservationSheet.NONE -> Unit
+                ReservationSheet
+                    .CANCEL_REASON -> {
+
+                    ReservationCancelReasonSheet(
+                        onBack = {
+                            activeSheet =
+                                ReservationSheet.NONE
+                        },
+                        onComplete = {
+                            /*
+                             * 예약 취소 API는 현재
+                             * 담당 범위가 아니므로
+                             * 기존 로컬 동작만 유지한다.
+                             */
+                            ReservationMockState
+                                .cancel(
+                                    currentReservation.id
+                                )
+
+                            activeSheet =
+                                ReservationSheet.NONE
+
+                            Toast.makeText(
+                                context,
+                                "예약 취소 API는 아직 연결되지 않았습니다.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            onCancelled()
+                        }
+                    )
+                }
+
+                ReservationSheet.NONE ->
+                    Unit
             }
         }
     }
 
     if (showChangeDialog) {
-        Dialog(onDismissRequest = { showChangeDialog = false }) {
-            ReservationChangeDialog(onDismiss = { showChangeDialog = false })
+        Dialog(
+            onDismissRequest = {
+                showChangeDialog = false
+            }
+        ) {
+            ReservationChangeDialog(
+                onDismiss = {
+                    showChangeDialog = false
+                }
+            )
         }
     }
 }
 
 @Composable
-private fun PriceRow(label: String, amount: Int) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 10.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+private fun ReservationDetailContent(
+    reservation: Reservation,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = modifier
     ) {
-        Text(text = label, style = MaterialTheme.typography.bodyLarge, color = TextSecondary)
-        Text(
-            text = if (amount < 0) "-%,d원".format(-amount) else "%,d원".format(amount),
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold
-        )
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        MutedRoseBgLight
+                    )
+                    .padding(
+                        horizontal = 16.dp,
+                        vertical = 20.dp
+                    ),
+                horizontalArrangement =
+                    Arrangement.SpaceBetween,
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "시술예정",
+                    style =
+                        MaterialTheme
+                            .typography
+                            .labelMedium,
+                    color = SurfaceWhite,
+                    fontWeight =
+                        FontWeight.Bold,
+                    modifier = Modifier
+                        .clip(
+                            RoundedCornerShape(
+                                5.dp
+                            )
+                        )
+                        .background(
+                            MutedRosePrimary
+                        )
+                        .padding(
+                            horizontal = 10.dp,
+                            vertical = 6.dp
+                        )
+                )
+
+                Text(
+                    text = reservation.dateTime,
+                    style =
+                        MaterialTheme
+                            .typography
+                            .titleMedium,
+                    color = MutedRosePrimary,
+                    fontWeight =
+                        FontWeight.Bold
+                )
+            }
+        }
+
+        item {
+            Column(
+                modifier =
+                    Modifier.padding(20.dp)
+            ) {
+                Text(
+                    text =
+                        reservation.shopName,
+                    style =
+                        MaterialTheme
+                            .typography
+                            .headlineSmall,
+                    fontWeight =
+                        FontWeight.Bold
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 20.dp),
+                    verticalAlignment =
+                        Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector =
+                            Icons.Filled.LocationOn,
+                        contentDescription = null,
+                        tint =
+                            MutedRosePrimary
+                    )
+
+                    Text(
+                        text =
+                            reservation.address,
+                        style =
+                            MaterialTheme
+                                .typography
+                                .bodyMedium,
+                        modifier =
+                            Modifier.padding(
+                                start = 10.dp
+                            )
+                    )
+                }
+
+                if (
+                    reservation.design
+                        .isNotBlank()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 24.dp)
+                            .clip(
+                                RoundedCornerShape(
+                                    6.dp
+                                )
+                            )
+                            .background(
+                                MaterialTheme
+                                    .colorScheme
+                                    .surfaceVariant
+                            )
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = "디자인",
+                            style =
+                                MaterialTheme
+                                    .typography
+                                    .labelMedium,
+                            fontWeight =
+                                FontWeight.Bold,
+                            color =
+                                TextSecondary
+                        )
+
+                        Text(
+                            text =
+                                reservation.design,
+                            style =
+                                MaterialTheme
+                                    .typography
+                                    .bodyMedium,
+                            modifier =
+                                Modifier.padding(
+                                    top = 12.dp
+                                )
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            HorizontalDivider(
+                color = DividerGray,
+                modifier =
+                    Modifier.padding(
+                        horizontal = 16.dp
+                    )
+            )
+        }
+
+        item {
+            Column(
+                modifier =
+                    Modifier.padding(20.dp)
+            ) {
+                Text(
+                    text = "결제 금액",
+                    style =
+                        MaterialTheme
+                            .typography
+                            .titleLarge,
+                    fontWeight =
+                        FontWeight.Bold
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 28.dp),
+                    horizontalArrangement =
+                        Arrangement.SpaceBetween,
+                    verticalAlignment =
+                        Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "총 결제 금액",
+                        style =
+                            MaterialTheme
+                                .typography
+                                .titleMedium,
+                        fontWeight =
+                            FontWeight.Bold
+                    )
+
+                    Text(
+                        text =
+                            "%,d원".format(
+                                reservation.price
+                            ),
+                        style =
+                            MaterialTheme
+                                .typography
+                                .headlineSmall,
+                        color =
+                            MutedRosePrimary,
+                        fontWeight =
+                            FontWeight.Bold
+                    )
+                }
+            }
+        }
     }
+}
+
+private fun ReservationDetailResponse
+        .toReservation(): Reservation {
+
+    val reservationStatus =
+        when (
+            status.uppercase(
+                Locale.US
+            )
+        ) {
+            "COMPLETED" ->
+                ReservationStatus.COMPLETED
+
+            "CANCELLED",
+            "CANCELED" ->
+                ReservationStatus.CANCELLED
+
+            else ->
+                ReservationStatus.CONFIRMED
+        }
+
+    return Reservation(
+        id = reservationId.toString(),
+        status = reservationStatus,
+        dateTime =
+            formatReservedAt(
+                reservedAt
+            ),
+        shopName = shopName,
+        design =
+            designName
+                ?: "디자인 정보 없음",
+        option = "",
+        price = totalPrice,
+        imageRes =
+            R.drawable.img_nail_1,
+        address = address,
+        basePrice = totalPrice
+    )
+}
+
+private fun formatReservedAt(
+    reservedAt: String
+): String {
+    if (reservedAt.isBlank()) {
+        return ""
+    }
+
+    return runCatching {
+        val inputFormatter =
+            SimpleDateFormat(
+                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+                Locale.US
+            ).apply {
+                timeZone =
+                    TimeZone.getTimeZone(
+                        "UTC"
+                    )
+            }
+
+        val date =
+            inputFormatter.parse(
+                reservedAt
+            ) ?: return reservedAt
+
+        val outputFormatter =
+            SimpleDateFormat(
+                "MM.dd (E) · a hh:mm",
+                Locale.KOREAN
+            )
+
+        outputFormatter.format(date)
+    }.getOrDefault(
+        reservedAt
+    )
 }

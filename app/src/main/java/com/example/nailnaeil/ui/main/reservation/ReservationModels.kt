@@ -35,7 +35,7 @@ data class Reservation(
 object ReservationMockState {
     private val confirmedList = mutableStateListOf(
         Reservation(
-            id = "r1",
+            id = "1",
             status = ReservationStatus.CONFIRMED,
             dateTime = "07.04 (토) · 오후 16:00",
             shopName = "유네일",
@@ -57,7 +57,7 @@ object ReservationMockState {
 
     private val pastList = mutableStateListOf(
         Reservation(
-            id = "r2",
+            id = "2",
             status = ReservationStatus.COMPLETED,
             dateTime = "06.02 (화) · 오후 19:00",
             shopName = "네일플랜트",
@@ -67,7 +67,7 @@ object ReservationMockState {
             imageRes = R.drawable.img_nail_2
         ),
         Reservation(
-            id = "r3",
+            id = "3",
             status = ReservationStatus.CANCELLED,
             dateTime = "05.12 (화) · 오후 13:00",
             shopName = "하늘네일",
@@ -77,7 +77,7 @@ object ReservationMockState {
             imageRes = R.drawable.img_nail_3
         ),
         Reservation(
-            id = "r4",
+            id = "4",
             status = ReservationStatus.COMPLETED,
             dateTime = "03.21 (토) · 오후 16:00",
             shopName = "루네일",
