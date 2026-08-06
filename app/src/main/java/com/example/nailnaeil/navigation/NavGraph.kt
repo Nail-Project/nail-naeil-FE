@@ -40,6 +40,8 @@ import com.example.nailnaeil.ui.onboarding.SignupCompleteScreen
 import com.example.nailnaeil.ui.onboarding.SplashScreen
 import com.example.nailnaeil.ui.quote.QuoteFlow
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.LaunchedEffect
+import com.example.nailnaeil.ui.main.my.ProfileMockState
 
 @Composable
 fun NailNailNavGraph(
@@ -155,6 +157,31 @@ fun NailNailNavGraph(
         }
 
         composable(Routes.MAIN) {
+
+            LaunchedEffect(mainSelectedTab) {
+                if (mainSelectedTab == MainTabRoutes.MY) {
+                    userRepository.getMyPage()
+                        .onSuccess { user ->
+                            ProfileMockState.nickname =
+                                user.nickname
+
+                            ProfileMockState.phone =
+                                user.phoneNumber
+
+                            ProfileMockState.email =
+                                user.email
+                        }
+                        .onFailure { exception ->
+                            Toast.makeText(
+                                context,
+                                exception.message
+                                    ?: "마이페이지 정보를 불러오지 못했습니다.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                }
+            }
+
             MainScaffold(
                 selectedTab = mainSelectedTab,
 
@@ -459,9 +486,65 @@ fun NailNailNavGraph(
         }
 
         composable(Routes.EDIT_PROFILE) {
+            var isSaving by remember {
+                mutableStateOf(false)
+            }
+
             EditProfileScreen(
                 onBackClick = {
                     navController.popBackStack()
+                },
+
+                isSaving = isSaving,
+
+                onSaveClick = {
+                        nickname,
+                        name,
+                        phoneNumber,
+                        email ->
+
+                    if (!isSaving) {
+                        isSaving = true
+
+                        coroutineScope.launch {
+                            userRepository.updateUser(
+                                nickname = nickname,
+                                phoneNumber = phoneNumber,
+                                email = email
+                            )
+                                .onSuccess { user ->
+                                    ProfileMockState.nickname =
+                                        user.nickname
+
+                                    ProfileMockState.phone =
+                                        user.phoneNumber
+
+                                    ProfileMockState.email =
+                                        user.email
+
+                                    ProfileMockState.name =
+                                        name
+
+                                    Toast.makeText(
+                                        context,
+                                        "회원 정보가 수정되었습니다.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                    navController.popBackStack()
+                                }
+                                .onFailure { exception ->
+                                    isSaving = false
+
+                                    Toast.makeText(
+                                        context,
+                                        exception.message
+                                            ?: "회원 정보 수정에 실패했습니다.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        }
+                    }
                 }
             )
         }
