@@ -4,8 +4,10 @@ import androidx.annotation.DrawableRes
 import androidx.compose.runtime.mutableStateListOf
 import com.example.nailnaeil.R
 
-enum class ReservationStatus(val badgeLabel: String) {
-    CONFIRMED("D-1"),
+enum class ReservationStatus(
+    val badgeLabel: String
+) {
+    CONFIRMED("예약확정"),
     COMPLETED("시술완료"),
     CANCELLED("취소")
 }
@@ -15,24 +17,47 @@ data class Reservation(
     val status: ReservationStatus,
     val dateTime: String,
     val shopName: String,
-    val design: String,
-    val option: String,
-    val price: Int,
-    @DrawableRes val imageRes: Int,
+
+    val design: String = "",
+    val option: String = "",
+    val price: Int = 0,
+
+    val imageUrl: String? = null,
+
+    @DrawableRes
+    val imageRes: Int? = null,
+
+    val proposalId: Long = 0L,
+    val nailType: String = "",
+    val removalType: String = "",
+
     val rating: String = "",
     val distance: String = "",
     val address: String = "",
     val closedDays: String = "",
     val comment: String = "",
+
     val basePrice: Int = 0,
     val designPrice: Int = 0,
     val optionPrice: Int = 0,
     val couponDiscount: Int = 0
 ) {
-    val finalPrice: Int get() = basePrice + designPrice + optionPrice - couponDiscount
+    val finalPrice: Int
+        get() =
+            basePrice +
+                    designPrice +
+                    optionPrice -
+                    couponDiscount
 }
 
+/*
+ * 아직 예약하기 API가 연결되지 않은 기존 화면에서 사용 중이므로
+ * MockState는 당장 삭제하지 않습니다.
+ *
+ * 예약 목록 화면에서는 더 이상 이 데이터를 직접 사용하지 않습니다.
+ */
 object ReservationMockState {
+
     private val confirmedList = mutableStateListOf(
         Reservation(
             id = "1",
@@ -88,18 +113,38 @@ object ReservationMockState {
         )
     )
 
-    val confirmed: List<Reservation> get() = confirmedList
-    val past: List<Reservation> get() = pastList
+    val confirmed: List<Reservation>
+        get() = confirmedList
 
-    fun findById(id: String): Reservation? = (confirmedList + pastList).find { it.id == id }
+    val past: List<Reservation>
+        get() = pastList
+
+    fun findById(id: String): Reservation? =
+        (confirmedList + pastList)
+            .find { it.id == id }
 
     fun cancel(id: String) {
-        val target = confirmedList.find { it.id == id } ?: return
+        val target =
+            confirmedList.find {
+                it.id == id
+            } ?: return
+
         confirmedList.remove(target)
-        pastList.add(0, target.copy(status = ReservationStatus.CANCELLED))
+
+        pastList.add(
+            0,
+            target.copy(
+                status = ReservationStatus.CANCELLED
+            )
+        )
     }
 
-    fun addConfirmed(reservation: Reservation) {
-        confirmedList.add(0, reservation)
+    fun addConfirmed(
+        reservation: Reservation
+    ) {
+        confirmedList.add(
+            0,
+            reservation
+        )
     }
 }

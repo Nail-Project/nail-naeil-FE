@@ -21,6 +21,7 @@ import com.example.nailnaeil.ui.main.estimate.EstimateListScreen
 import com.example.nailnaeil.ui.main.home.EstimateSummary
 import com.example.nailnaeil.ui.main.home.MainHomeScreen
 import com.example.nailnaeil.ui.main.my.MyPageScreen
+import com.example.nailnaeil.ui.main.reservation.Reservation
 import com.example.nailnaeil.ui.main.reservation.ReservationListScreen
 import com.example.nailnaeil.ui.theme.SurfaceWhite
 import com.example.nailnaeil.ui.theme.TextDisabled
@@ -29,29 +30,61 @@ import com.example.nailnaeil.ui.theme.TextMain
 private data class MainTab(
     val route: String,
     val label: String,
-    @DrawableRes val icon: Int,
-    @DrawableRes val selectedIcon: Int
+    @DrawableRes
+    val icon: Int,
+    @DrawableRes
+    val selectedIcon: Int
 )
 
-private val mainTabs = listOf(
-    MainTab(MainTabRoutes.HOME, "홈", R.drawable.ic_tab_home, R.drawable.ic_tab_home_selected),
-    MainTab(MainTabRoutes.ESTIMATE_LIST, "견적함", R.drawable.ic_tab_list, R.drawable.ic_tab_list_selected),
-    MainTab(MainTabRoutes.RESERVATION, "예약", R.drawable.ic_tab_reservation, R.drawable.ic_tab_reservation_selected),
-    MainTab(MainTabRoutes.MY, "마이", R.drawable.ic_tab_my, R.drawable.ic_tab_my_selected)
-)
+private val mainTabs =
+    listOf(
+        MainTab(
+            MainTabRoutes.HOME,
+            "홈",
+            R.drawable.ic_tab_home,
+            R.drawable.ic_tab_home_selected
+        ),
+        MainTab(
+            MainTabRoutes.ESTIMATE_LIST,
+            "견적함",
+            R.drawable.ic_tab_list,
+            R.drawable.ic_tab_list_selected
+        ),
+        MainTab(
+            MainTabRoutes.RESERVATION,
+            "예약",
+            R.drawable.ic_tab_reservation,
+            R.drawable.ic_tab_reservation_selected
+        ),
+        MainTab(
+            MainTabRoutes.MY,
+            "마이",
+            R.drawable.ic_tab_my,
+            R.drawable.ic_tab_my_selected
+        )
+    )
 
 @Composable
 fun MainScaffold(
     selectedTab: String,
     onTabSelected: (String) -> Unit,
+
     onAddressClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onNeedUpgrade: () -> Unit,
     onStartEstimate: () -> Unit,
+
     onMagazineClick: (String) -> Unit,
     onEstimateClick: (EstimateSummary) -> Unit,
     onEstimateItemClick: (EstimateItem) -> Unit,
+
+    confirmedReservations: List<Reservation>,
+    pastReservations: List<Reservation>,
+    isReservationLoading: Boolean,
+    reservationErrorMessage: String?,
+    onReservationRetryClick: () -> Unit,
     onReservationItemClick: (String) -> Unit,
+
     onEditProfileClick: () -> Unit,
     onMyInfoClick: () -> Unit,
     onFavoriteDesignClick: () -> Unit,
@@ -60,58 +93,147 @@ fun MainScaffold(
     onNoticeClick: () -> Unit,
     onTermsPolicyClick: () -> Unit
 ) {
+
     Scaffold(
-        containerColor = SurfaceWhite,
+        containerColor =
+            SurfaceWhite,
         bottomBar = {
-            NavigationBar(containerColor = SurfaceWhite) {
+
+            NavigationBar(
+                containerColor =
+                    SurfaceWhite
+            ) {
+
                 mainTabs.forEach { tab ->
-                    val selected = selectedTab == tab.route
+
+                    val selected =
+                        selectedTab ==
+                                tab.route
+
                     NavigationBarItem(
-                        selected = selected,
-                        onClick = { onTabSelected(tab.route) },
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = if (selected) tab.selectedIcon else tab.icon),
-                                contentDescription = tab.label
+                        selected =
+                            selected,
+                        onClick = {
+                            onTabSelected(
+                                tab.route
                             )
                         },
-                        label = { Text(tab.label) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = TextMain,
-                            selectedTextColor = TextMain,
-                            unselectedIconColor = TextDisabled,
-                            unselectedTextColor = TextDisabled,
-                            indicatorColor = Color.Transparent
-                        )
+                        icon = {
+
+                            Icon(
+                                painter =
+                                    painterResource(
+                                        id =
+                                            if (
+                                                selected
+                                            ) {
+                                                tab.selectedIcon
+                                            } else {
+                                                tab.icon
+                                            }
+                                    ),
+                                contentDescription =
+                                    tab.label
+                            )
+                        },
+                        label = {
+                            Text(
+                                tab.label
+                            )
+                        },
+                        colors =
+                            NavigationBarItemDefaults.colors(
+                                selectedIconColor =
+                                    TextMain,
+                                selectedTextColor =
+                                    TextMain,
+                                unselectedIconColor =
+                                    TextDisabled,
+                                unselectedTextColor =
+                                    TextDisabled,
+                                indicatorColor =
+                                    Color.Transparent
+                            )
                     )
                 }
             }
         }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            when (selectedTab) {
-                MainTabRoutes.HOME -> MainHomeScreen(
-                    onAddressClick = onAddressClick,
-                    onNotificationClick = onNotificationClick,
-                    onNeedUpgrade = onNeedUpgrade,
-                    onStartEstimate = onStartEstimate,
-                    onMagazineClick = onMagazineClick,
-                    onEstimateClick = onEstimateClick
-                )
-                MainTabRoutes.ESTIMATE_LIST -> EstimateListScreen(onItemClick = onEstimateItemClick)
-                MainTabRoutes.RESERVATION -> ReservationListScreen(
-                    onReservationClick = onReservationItemClick,
-                    onStartEstimate = onStartEstimate
-                )
-                MainTabRoutes.MY -> MyPageScreen(
-                    onEditProfileClick = onEditProfileClick,
-                    onMyInfoClick = onMyInfoClick,
-                    onFavoriteDesignClick = onFavoriteDesignClick,
-                    onFavoriteShopClick = onFavoriteShopClick,
-                    onNotificationSettingClick = onNotificationSettingClick,
-                    onNoticeClick = onNoticeClick,
-                    onTermsPolicyClick = onTermsPolicyClick
-                )
+
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(
+                        padding
+                    )
+        ) {
+
+            when (
+                selectedTab
+            ) {
+
+                MainTabRoutes.HOME ->
+
+                    MainHomeScreen(
+                        onAddressClick =
+                            onAddressClick,
+                        onNotificationClick =
+                            onNotificationClick,
+                        onNeedUpgrade =
+                            onNeedUpgrade,
+                        onStartEstimate =
+                            onStartEstimate,
+                        onMagazineClick =
+                            onMagazineClick,
+                        onEstimateClick =
+                            onEstimateClick
+                    )
+
+                MainTabRoutes.ESTIMATE_LIST ->
+
+                    EstimateListScreen(
+                        onItemClick =
+                            onEstimateItemClick
+                    )
+
+                MainTabRoutes.RESERVATION ->
+
+                    ReservationListScreen(
+                        confirmedReservations =
+                            confirmedReservations,
+                        pastReservations =
+                            pastReservations,
+                        isLoading =
+                            isReservationLoading,
+                        errorMessage =
+                            reservationErrorMessage,
+                        onRetryClick =
+                            onReservationRetryClick,
+                        onReservationClick =
+                            onReservationItemClick,
+                        onStartEstimate =
+                            onStartEstimate
+                    )
+
+                MainTabRoutes.MY ->
+
+                    MyPageScreen(
+                        onEditProfileClick =
+                            onEditProfileClick,
+                        onMyInfoClick =
+                            onMyInfoClick,
+                        onFavoriteDesignClick =
+                            onFavoriteDesignClick,
+                        onFavoriteShopClick =
+                            onFavoriteShopClick,
+                        onNotificationSettingClick =
+                            onNotificationSettingClick,
+                        onNoticeClick =
+                            onNoticeClick,
+                        onTermsPolicyClick =
+                            onTermsPolicyClick
+                    )
             }
         }
     }

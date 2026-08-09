@@ -1,11 +1,10 @@
 package com.example.nailnaeil.data.remote.dto
 
-data class ReservationDetailResponse(
+data class ReservationChangeResponse(
     val reservationId: Long = 0L,
     val shopName: String = "",
-    val shopPhoneNumber: String? = null,
+    val shopPhoneNumber: String = "",
     val address: String = "",
-    val addressDetail: String? = null,
     val reservedAt: String = "",
     val basePrice: Int = 0,
     val removalPrice: Int = 0,
@@ -13,7 +12,6 @@ data class ReservationDetailResponse(
     val totalPrice: Int = 0,
     val shopComment: String? = null,
     val nailType: String = "",
-    val removalType: String = "",
     val images: List<String> = emptyList(),
     val status: String = "",
     val designName: String? = null
