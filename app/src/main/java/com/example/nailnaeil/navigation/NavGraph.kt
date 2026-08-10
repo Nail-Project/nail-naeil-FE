@@ -1,5 +1,6 @@
 package com.example.nailnaeil.navigation
 
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -7,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -52,6 +54,9 @@ fun NailNailNavGraph(
 
     val coroutineScope =
         rememberCoroutineScope()
+
+    val context =
+        LocalContext.current
 
     val bookmarkApi =
         remember {
@@ -446,6 +451,12 @@ fun NailNailNavGraph(
                 mutableStateOf(false)
             }
 
+            var removingDesignIds by remember {
+                mutableStateOf<Set<Long>>(
+                    emptySet()
+                )
+            }
+
             fun loadBookmarks(
                 isFirstLoad: Boolean
             ) {
@@ -575,6 +586,8 @@ fun NailNailNavGraph(
                     hasNext,
                 errorMessage =
                     errorMessage,
+                removingDesignIds =
+                    removingDesignIds,
                 onBackClick = {
                     navController
                         .popBackStack()
@@ -596,6 +609,77 @@ fun NailNailNavGraph(
 
                     // TODO:
                     // 디자인 상세 화면 연동 시 사용
+                },
+                onRemoveWishClick = {
+                        designId ->
+
+                    if (
+                        !removingDesignIds
+                            .contains(
+                                designId
+                            )
+                    ) {
+                        removingDesignIds =
+                            removingDesignIds +
+                                    designId
+
+                        coroutineScope.launch {
+
+                            bookmarkRepository
+                                .removeDesignWish(
+                                    designId =
+                                        designId
+                                )
+                                .onSuccess {
+                                        response ->
+
+                                    if (
+                                        !response
+                                            .isBookmarked
+                                    ) {
+                                        designs =
+                                            designs
+                                                .filterNot {
+                                                    it.designId ==
+                                                            designId
+                                                }
+                                    } else {
+                                        designs =
+                                            designs
+                                                .map {
+                                                        design ->
+
+                                                    if (
+                                                        design.designId ==
+                                                        designId
+                                                    ) {
+                                                        design.copy(
+                                                            wishCount =
+                                                                response
+                                                                    .wishCount
+                                                        )
+                                                    } else {
+                                                        design
+                                                    }
+                                                }
+                                    }
+                                }
+                                .onFailure {
+                                        exception ->
+
+                                    Toast.makeText(
+                                        context,
+                                        exception.message
+                                            ?: "찜 해제에 실패했습니다.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+
+                            removingDesignIds =
+                                removingDesignIds -
+                                        designId
+                        }
+                    }
                 }
             )
         }

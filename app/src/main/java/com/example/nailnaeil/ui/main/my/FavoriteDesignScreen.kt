@@ -17,8 +17,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,28 +52,36 @@ fun FavoriteDesignScreen(
     isLoadingMore: Boolean,
     hasNext: Boolean,
     errorMessage: String?,
+    removingDesignIds: Set<Long>,
     onBackClick: () -> Unit,
     onRetryClick: () -> Unit,
     onLoadMore: () -> Unit,
-    onDesignClick: (Long) -> Unit
+    onDesignClick: (Long) -> Unit,
+    onRemoveWishClick: (Long) -> Unit
 ) {
-    val gridState = rememberLazyGridState()
+    val gridState =
+        rememberLazyGridState()
 
     val shouldLoadMore by remember {
         derivedStateOf {
-            val layoutInfo = gridState.layoutInfo
-            val totalItemsCount = layoutInfo.totalItemsCount
+            val layoutInfo =
+                gridState.layoutInfo
+
+            val totalItemsCount =
+                layoutInfo.totalItemsCount
 
             if (totalItemsCount == 0) {
                 false
             } else {
                 val lastVisibleItemIndex =
-                    layoutInfo.visibleItemsInfo
+                    layoutInfo
+                        .visibleItemsInfo
                         .lastOrNull()
                         ?.index
                         ?: 0
 
-                lastVisibleItemIndex >= totalItemsCount - 4
+                lastVisibleItemIndex >=
+                        totalItemsCount - 4
             }
         }
     }
@@ -98,16 +106,24 @@ fun FavoriteDesignScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("찜한 디자인")
+                    Text(
+                        "찜한 디자인"
+                    )
                 },
+
                 navigationIcon = {
                     IconButton(
-                        onClick = onBackClick
+                        onClick =
+                            onBackClick
                     ) {
                         Icon(
                             imageVector =
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "뒤로가기"
+                                Icons.AutoMirrored
+                                    .Filled
+                                    .ArrowBack,
+
+                            contentDescription =
+                                "뒤로가기"
                         )
                     }
                 }
@@ -116,98 +132,181 @@ fun FavoriteDesignScreen(
     ) { padding ->
 
         when {
+
             isLoading -> {
+
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(
+                                padding
+                            ),
+
+                    contentAlignment =
+                        Alignment.Center
                 ) {
+
                     CircularProgressIndicator()
                 }
             }
 
-            errorMessage != null && designs.isEmpty() -> {
+            errorMessage != null &&
+                    designs.isEmpty() -> {
+
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(24.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(
+                                padding
+                            )
+                            .padding(
+                                24.dp
+                            ),
+
                     horizontalAlignment =
                         Alignment.CenterHorizontally,
+
                     verticalArrangement =
                         Arrangement.Center
                 ) {
+
                     Text(
-                        text = errorMessage
+                        text =
+                            errorMessage
                     )
 
                     Button(
-                        onClick = onRetryClick,
+                        onClick =
+                            onRetryClick,
+
                         modifier =
-                            Modifier.padding(top = 16.dp)
+                            Modifier.padding(
+                                top = 16.dp
+                            )
                     ) {
-                        Text("다시 시도")
+
+                        Text(
+                            "다시 시도"
+                        )
                     }
                 }
             }
 
             designs.isEmpty() -> {
+
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(
+                                padding
+                            ),
+
+                    contentAlignment =
+                        Alignment.Center
                 ) {
-                    Text("찜한 디자인이 없습니다.")
+
+                    Text(
+                        "찜한 디자인이 없습니다."
+                    )
                 }
             }
 
             else -> {
+
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    state = gridState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
+                    columns =
+                        GridCells.Fixed(
+                            2
+                        ),
+
+                    state =
+                        gridState,
+
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(
+                                padding
+                            ),
+
                     contentPadding =
-                        PaddingValues(10.dp),
+                        PaddingValues(
+                            10.dp
+                        ),
+
                     horizontalArrangement =
-                        Arrangement.spacedBy(6.dp),
+                        Arrangement.spacedBy(
+                            6.dp
+                        ),
+
                     verticalArrangement =
-                        Arrangement.spacedBy(6.dp)
+                        Arrangement.spacedBy(
+                            6.dp
+                        )
                 ) {
+
                     items(
-                        items = designs,
+                        items =
+                            designs,
+
                         key = {
                             it.designId
                         }
                     ) { design ->
 
                         FavoriteDesignCard(
-                            design = design,
+                            design =
+                                design,
+
+                            isRemoving =
+                                removingDesignIds
+                                    .contains(
+                                        design.designId
+                                    ),
+
                             onClick = {
                                 onDesignClick(
+                                    design.designId
+                                )
+                            },
+
+                            onRemoveWishClick = {
+                                onRemoveWishClick(
                                     design.designId
                                 )
                             }
                         )
                     }
 
-                    if (isLoadingMore) {
+                    if (
+                        isLoadingMore
+                    ) {
+
                         item(
-                            key = "loading_more"
+                            key =
+                                "loading_more"
                         ) {
+
                             Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(20.dp),
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            20.dp
+                                        ),
+
                                 contentAlignment =
                                     Alignment.Center
                             ) {
+
                                 CircularProgressIndicator(
                                     modifier =
-                                        Modifier.size(28.dp)
+                                        Modifier.size(
+                                            28.dp
+                                        )
                                 )
                             }
                         }
@@ -221,60 +320,86 @@ fun FavoriteDesignScreen(
 @Composable
 private fun FavoriteDesignCard(
     design: FavoriteDesignItem,
-    onClick: () -> Unit
+    isRemoving: Boolean,
+    onClick: () -> Unit,
+    onRemoveWishClick: () -> Unit
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(0.83f)
-            .clip(
-                RoundedCornerShape(8.dp)
-            )
-            .clickable(
-                onClick = onClick
-            )
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .aspectRatio(
+                    0.83f
+                )
+                .clip(
+                    RoundedCornerShape(
+                        8.dp
+                    )
+                )
+                .clickable(
+                    onClick =
+                        onClick
+                )
     ) {
+
         AsyncImage(
-            model = design.imageUrl,
+            model =
+                design.imageUrl,
+
             contentDescription =
                 design.designName,
+
             contentScale =
                 ContentScale.Crop,
+
             modifier =
                 Modifier.fillMaxSize()
         )
 
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(
-                    Alignment.BottomCenter
-                )
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color(0x33000000),
-                            Color(0xB3000000)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .align(
+                        Alignment.BottomCenter
+                    )
+                    .background(
+                        Brush.verticalGradient(
+                            colors =
+                                listOf(
+                                    Color.Transparent,
+                                    Color(
+                                        0x33000000
+                                    ),
+                                    Color(
+                                        0xB3000000
+                                    )
+                                )
                         )
                     )
-                )
-                .padding(
-                    top = 60.dp
-                )
+                    .padding(
+                        top = 60.dp
+                    )
         ) {
+
             Text(
                 text =
                     design.designName,
+
                 style =
                     MaterialTheme
                         .typography
                         .titleMedium,
+
                 color =
                     SurfaceWhite,
+
                 fontWeight =
                     FontWeight.Bold,
-                maxLines = 1,
+
+                maxLines =
+                    1,
+
                 modifier =
                     Modifier.padding(
                         start = 12.dp,
@@ -285,24 +410,53 @@ private fun FavoriteDesignCard(
         }
 
         IconButton(
-            onClick = {
-                // TODO:
-                // 찜 토글 API 명세 확정 후 연결
-            },
-            modifier = Modifier
-                .align(
-                    Alignment.TopEnd
-                )
-                .size(40.dp)
+            onClick =
+                onRemoveWishClick,
+
+            enabled =
+                !isRemoving,
+
+            modifier =
+                Modifier
+                    .align(
+                        Alignment.TopEnd
+                    )
+                    .size(
+                        40.dp
+                    )
         ) {
-            Icon(
-                imageVector =
-                    Icons.Filled.Favorite,
-                contentDescription =
-                    "찜",
-                tint =
-                    SurfaceWhite
-            )
+
+            if (
+                isRemoving
+            ) {
+
+                CircularProgressIndicator(
+                    modifier =
+                        Modifier.size(
+                            20.dp
+                        ),
+
+                    strokeWidth =
+                        2.dp,
+
+                    color =
+                        SurfaceWhite
+                )
+
+            } else {
+
+                Icon(
+                    imageVector =
+                        Icons.Filled
+                            .Favorite,
+
+                    contentDescription =
+                        "찜 해제",
+
+                    tint =
+                        SurfaceWhite
+                )
+            }
         }
     }
 }
