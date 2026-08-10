@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "977819669068",
+    "project_id": "nailnaeil",
+    "storage_bucket": "nailnaeil.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:977819669068:android:67ed44e5728512fa6cdae9",
+        "android_client_info": {
+          "package_name": "com.example.nailnaeil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKxF6KGgbzRMvSQMyz1IwPnRgrjnYOsQ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

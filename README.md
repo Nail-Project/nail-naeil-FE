@@ -34,7 +34,7 @@
 ## 📁 프로젝트 폴더 구조
 
 ```
-com.example.nailnail/
+com.example.nailnaeil/
 │
 ├── ui/                         # UI 레이어
 │   ├── login/
