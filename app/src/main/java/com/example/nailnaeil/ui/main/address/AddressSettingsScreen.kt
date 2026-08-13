@@ -2,6 +2,7 @@ package com.example.nailnaeil.ui.main.address
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -25,6 +27,7 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.nailnaeil.data.remote.dto.UserAddress
 import com.example.nailnaeil.ui.theme.MutedRosePrimary
 import com.example.nailnaeil.ui.theme.TextSecondary
 
@@ -41,9 +45,11 @@ import com.example.nailnaeil.ui.theme.TextSecondary
 fun AddressSettingsScreen(
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
-    onAddressSelected: (Address) -> Unit
+    onAddressSelected: (UserAddress) -> Unit
 ) {
     var query by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) { AddressState.refresh() }
 
     Scaffold(
         topBar = {
@@ -62,6 +68,9 @@ fun AddressSettingsScreen(
             )
         }
     ) { padding ->
+        val filtered = AddressState.addresses.filter {
+            query.isBlank() || it.label.contains(query) || it.address.contains(query)
+        }
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -95,14 +104,27 @@ fun AddressSettingsScreen(
                     )
                 }
                 HorizontalDivider()
+
+                if (AddressState.isLoading) {
+                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp)) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                } else if (AddressState.errorMessage != null) {
+                    Text(
+                        text = AddressState.errorMessage ?: "",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextSecondary,
+                        modifier = Modifier.padding(vertical = 24.dp)
+                    )
+                }
             }
 
-            items(AddressMockState.addresses) { address ->
+            items(filtered) { address ->
                 AddressRow(
                     address = address,
-                    isCurrent = address.id == AddressMockState.currentAddressId,
+                    isCurrent = address.addressId == AddressState.selectedAddressId,
                     onClick = {
-                        AddressMockState.setCurrent(address.id)
+                        AddressState.setCurrent(address.addressId)
                         onAddressSelected(address)
                     }
                 )
@@ -112,7 +134,7 @@ fun AddressSettingsScreen(
 }
 
 @Composable
-private fun AddressRow(address: Address, isCurrent: Boolean, onClick: () -> Unit) {
+private fun AddressRow(address: UserAddress, isCurrent: Boolean, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,7 +152,7 @@ private fun AddressRow(address: Address, isCurrent: Boolean, onClick: () -> Unit
             }
         }
         Text(
-            text = address.roadAddress,
+            text = address.address,
             style = MaterialTheme.typography.bodySmall,
             color = TextSecondary,
             modifier = Modifier.padding(top = 2.dp)

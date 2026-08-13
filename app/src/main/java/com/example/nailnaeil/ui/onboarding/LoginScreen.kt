@@ -10,25 +10,36 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.nailnaeil.R
+import com.example.nailnaeil.di.AppContainer
 import com.example.nailnaeil.ui.common.BrandLogo
 import com.example.nailnaeil.ui.theme.KakaoTextBrown
 import com.example.nailnaeil.ui.theme.KakaoYellow
-import com.example.nailnaeil.ui.theme.NaverGreen
-import com.example.nailnaeil.ui.theme.SurfaceWhite
+import com.example.nailnaeil.ui.theme.MutedRosePrimary
 import com.example.nailnaeil.ui.theme.TextSecondary
+import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(onKakaoLoginClick: () -> Unit, onNaverLoginClick: () -> Unit) {
+fun LoginScreen(
+    onKakaoLoginClick: () -> Unit,
+    onTestLoginSuccess: () -> Unit = {}
+) {
+    val scope = rememberCoroutineScope()
+    var isTestLoggingIn by remember { mutableStateOf(false) }
+    var testLoginError by remember { mutableStateOf<String?>(null) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -61,20 +72,38 @@ fun LoginScreen(onKakaoLoginClick: () -> Unit, onNaverLoginClick: () -> Unit) {
             Text("카카오로 시작하기", fontWeight = FontWeight.Bold)
         }
 
-        Button(
-            onClick = onNaverLoginClick,
-            colors = ButtonDefaults.buttonColors(containerColor = NaverGreen, contentColor = SurfaceWhite),
+        // TODO: 백엔드 연동 테스트용 임시 버튼. 확인 끝나면 제거할 것.
+        OutlinedButton(
+            onClick = {
+                if (isTestLoggingIn) return@OutlinedButton
+                isTestLoggingIn = true
+                testLoginError = null
+                scope.launch {
+                    AppContainer.authRepository.login(identifier = "demo_master", password = "Demo1234!")
+                        .onSuccess { onTestLoginSuccess() }
+                        .onFailure { e -> testLoginError = e.message ?: "로그인에 실패했어요." }
+                    isTestLoggingIn = false
+                }
+            },
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MutedRosePrimary),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp)
+                .padding(top = 20.dp)
                 .height(52.dp)
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_naver),
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
+            if (isTestLoggingIn) {
+                CircularProgressIndicator(modifier = Modifier.size(18.dp), color = MutedRosePrimary)
+            } else {
+                Text("테스트 로그인 (demo_master)", fontWeight = FontWeight.Bold)
+            }
+        }
+        if (testLoginError != null) {
+            Text(
+                text = testLoginError.orEmpty(),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 8.dp)
             )
-            Text("네이버로 로그인", fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 10.dp))
         }
     }
 }

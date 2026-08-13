@@ -7,6 +7,7 @@ import com.example.nailnaeil.data.remote.dto.DesignAdminUpdateRequest
 import com.example.nailnaeil.data.remote.dto.ShopAdmin
 import com.example.nailnaeil.data.remote.dto.ShopAdminInput
 import com.example.nailnaeil.data.remote.dto.ShopAdminListResponse
+import com.example.nailnaeil.data.remote.dto.ShopSyncRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -18,6 +19,13 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface AdminApi {
+
+    /** 소상공인 상가정보 API에서 지정한 업종 코드의 네일샵 데이터를 동기화한다. */
+    @POST("admin/api/v1/shops/sync")
+    suspend fun syncShops(
+        @Header("x-admin-sync-key") adminSyncKey: String,
+        @Body request: ShopSyncRequest
+    ): Response<Unit>
 
     @GET("admin/api/v1/shops")
     suspend fun getShops(

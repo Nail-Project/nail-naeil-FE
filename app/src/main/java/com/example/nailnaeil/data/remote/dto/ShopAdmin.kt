@@ -1,5 +1,12 @@
 package com.example.nailnaeil.data.remote.dto
 
+data class ShopSyncRequest(
+    /** 상권업종 소분류 코드. */
+    val industryCode: String,
+    val pageSize: Int? = null,
+    val maxPages: Int? = null
+)
+
 data class ShopAdminInput(
     val name: String,
     val phoneNumber: String? = null,

@@ -18,7 +18,9 @@ data class AdminShopListUiState(
     val keyword: String = "",
     val isSelectMode: Boolean = false,
     val selectedShopIds: Set<Long> = emptySet(),
-    val isDeleting: Boolean = false
+    val isDeleting: Boolean = false,
+    val isSyncing: Boolean = false,
+    val syncResultMessage: String? = null
 ) {
     val filteredShops: List<ShopAdmin>
         get() = if (keyword.isBlank()) {
@@ -46,6 +48,25 @@ class AdminShopListViewModel(
                 .onSuccess { response -> _uiState.update { it.copy(isLoading = false, shops = response.shops) } }
                 .onFailure { e -> _uiState.update { it.copy(isLoading = false, errorMessage = e.message) } }
         }
+    }
+
+    fun syncShops(industryCode: String, pageSize: Int?, maxPages: Int?) {
+        if (industryCode.isBlank()) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSyncing = true, syncResultMessage = null) }
+            repository.syncShops(industryCode, pageSize, maxPages)
+                .onSuccess {
+                    _uiState.update { it.copy(isSyncing = false, syncResultMessage = "동기화가 완료됐어요.") }
+                    loadShops()
+                }
+                .onFailure { e ->
+                    _uiState.update { it.copy(isSyncing = false, syncResultMessage = e.message ?: "동기화에 실패했어요.") }
+                }
+        }
+    }
+
+    fun consumeSyncResultMessage() {
+        _uiState.update { it.copy(syncResultMessage = null) }
     }
 
     fun setKeyword(keyword: String) {

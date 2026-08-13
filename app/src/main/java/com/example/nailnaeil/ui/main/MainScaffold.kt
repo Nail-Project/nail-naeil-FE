@@ -114,6 +114,9 @@ fun MainScaffold(
                     onNotificationSettingClick = onNotificationSettingClick,
                     onNoticeClick = onNoticeClick,
                     onTermsPolicyClick = onTermsPolicyClick,
+                    onNeedUpgrade = onNeedUpgrade,
+                    onInProgressEstimatesClick = { onTabSelected(MainTabRoutes.ESTIMATE_LIST) },
+                    onUpcomingReservationsClick = { onTabSelected(MainTabRoutes.RESERVATION) },
                     onAdminUnlocked = onAdminUnlocked
                 )
             }

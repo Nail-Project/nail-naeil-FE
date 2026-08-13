@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,7 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nailnaeil.data.remote.dto.DesignSummary
 import com.example.nailnaeil.data.remote.dto.EstimateListItem
-import com.example.nailnaeil.ui.main.address.AddressMockState
+import com.example.nailnaeil.ui.main.address.AddressState
 import com.example.nailnaeil.ui.main.home.components.EstimateUploadCard
 import com.example.nailnaeil.ui.main.home.components.InProgressEstimateSection
 import com.example.nailnaeil.ui.main.home.components.MagazineSection
@@ -42,6 +43,10 @@ fun MainHomeScreen(
     viewModel: HomeViewModel = viewModel { HomeViewModel() }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        if (AddressState.addresses.isEmpty()) AddressState.refresh()
+    }
 
     val uploadSubtitle = when {
         uiState.inProgressEstimates.isEmpty() -> "최대 3장까지 가능해요"
@@ -68,7 +73,7 @@ fun MainHomeScreen(
                     modifier = Modifier.clickable(onClick = onAddressClick)
                 ) {
                     Text(
-                        text = AddressMockState.currentAddressLabel(),
+                        text = AddressState.currentAddressLabel(),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold
                     )

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -21,24 +22,33 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.nailnaeil.data.remote.dto.UserAddress
+import com.example.nailnaeil.di.AppContainer
 import com.example.nailnaeil.ui.theme.TextSecondary
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddressEditScreen(
     onBackClick: () -> Unit,
-    onModifyClick: (Address) -> Unit
+    onModifyClick: (UserAddress) -> Unit,
+    onAddClick: () -> Unit
 ) {
-    var deleteTarget by remember { mutableStateOf<Address?>(null) }
+    var deleteTarget by remember { mutableStateOf<UserAddress?>(null) }
     var deleteStep by remember { mutableStateOf<DeleteDialogStep?>(null) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) { AddressState.refresh() }
 
     Scaffold(
         topBar = {
@@ -47,6 +57,11 @@ fun AddressEditScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "뒤로가기")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onAddClick) {
+                        Icon(Icons.Filled.Add, contentDescription = "새 주소 추가")
                     }
                 }
             )
@@ -58,11 +73,11 @@ fun AddressEditScreen(
                 .padding(padding)
                 .padding(horizontal = 20.dp)
         ) {
-            items(AddressMockState.addresses) { address ->
+            items(AddressState.addresses) { address ->
                 Column(modifier = Modifier.padding(vertical = 12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = address.label, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
-                        if (address.id == AddressMockState.currentAddressId) {
+                        if (address.addressId == AddressState.selectedAddressId) {
                             SuggestionChip(
                                 onClick = {},
                                 label = { Text("현재 설정된 주소", style = MaterialTheme.typography.labelSmall) },
@@ -71,19 +86,17 @@ fun AddressEditScreen(
                         }
                     }
                     Text(
-                        text = address.roadAddress,
+                        text = address.address,
                         style = MaterialTheme.typography.bodySmall,
                         color = TextSecondary,
                         modifier = Modifier.padding(top = 2.dp, bottom = 8.dp)
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(onClick = { onModifyClick(address) }) { Text("수정") }
-                        if (address.icon != AddressIconType.HOME) {
-                            OutlinedButton(onClick = {
-                                deleteTarget = address
-                                deleteStep = DeleteDialogStep.CONFIRM
-                            }) { Text("삭제") }
-                        }
+                        OutlinedButton(onClick = {
+                            deleteTarget = address
+                            deleteStep = DeleteDialogStep.CONFIRM
+                        }) { Text("삭제") }
                     }
                     HorizontalDivider(modifier = Modifier.padding(top = 12.dp))
                 }
@@ -101,9 +114,18 @@ fun AddressEditScreen(
                 deleteStep = null
                 deleteTarget = null
             },
-            onConfirmDelete = { deleteStep = DeleteDialogStep.COMPLETE },
+            onConfirmDelete = {
+                scope.launch {
+                    AppContainer.userRepository.deleteAddress(target.addressId)
+                        .onSuccess { deleteStep = DeleteDialogStep.COMPLETE }
+                        .onFailure {
+                            deleteStep = null
+                            deleteTarget = null
+                        }
+                }
+            },
             onAcknowledgeComplete = {
-                AddressMockState.delete(target.id)
+                scope.launch { AddressState.refresh() }
                 deleteStep = null
                 deleteTarget = null
             }

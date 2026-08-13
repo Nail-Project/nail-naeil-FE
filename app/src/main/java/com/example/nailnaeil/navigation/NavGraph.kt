@@ -3,6 +3,7 @@ package com.example.nailnaeil.navigation
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.nailnaeil.BuildConfig
+import com.example.nailnaeil.debug.UiPreviewScreen
 import com.example.nailnaeil.di.AppContainer
 import com.example.nailnaeil.ui.main.MainScaffold
 import com.example.nailnaeil.ui.main.admin.AdminHomeScreen
@@ -26,6 +28,8 @@ import com.example.nailnaeil.ui.main.address.AddressEditScreen
 import com.example.nailnaeil.ui.main.address.AddressFormScreen
 import com.example.nailnaeil.ui.main.address.AddressSettingsScreen
 import com.example.nailnaeil.ui.main.design.DesignDetailScreen
+import com.example.nailnaeil.ui.main.design.RecentProposalsScreen
+import com.example.nailnaeil.ui.main.design.SimilarDesignsScreen
 import com.example.nailnaeil.ui.main.estimate.EstimateComparisonScreen
 import com.example.nailnaeil.ui.main.estimate.ShopDetailScreen
 import com.example.nailnaeil.ui.main.my.EditProfileScreen
@@ -35,6 +39,9 @@ import com.example.nailnaeil.ui.main.my.MyInfoScreen
 import com.example.nailnaeil.ui.main.my.NoticeScreen
 import com.example.nailnaeil.ui.main.my.NotificationSettingScreen
 import com.example.nailnaeil.ui.main.my.TermsPolicyScreen
+import com.example.nailnaeil.ui.main.my.plan.PlanCompleteScreen
+import com.example.nailnaeil.ui.main.my.plan.PlanPaymentScreen
+import com.example.nailnaeil.ui.main.my.plan.PlanSelectionScreen
 import com.example.nailnaeil.ui.main.reservation.ReservationCompleteScreen
 import com.example.nailnaeil.ui.main.reservation.ReservationDetailScreen
 import com.example.nailnaeil.ui.onboarding.KakaoConsentScreen
@@ -46,7 +53,10 @@ import com.example.nailnaeil.ui.quote.QuoteFlow
 import kotlinx.coroutines.launch
 
 @Composable
-fun NailNailNavGraph(navController: NavHostController = rememberNavController()) {
+fun NailNailNavGraph(
+    navController: NavHostController = rememberNavController(),
+    startDestination: String = Routes.SPLASH
+) {
     var mainSelectedTab by remember { mutableStateOf(MainTabRoutes.HOME) }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -56,7 +66,16 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
         coroutineScope.launch { AppContainer.deviceTokenRepository.registerCurrentDeviceToken() }
     }
 
-    NavHost(navController = navController, startDestination = Routes.SPLASH) {
+    // 딥링크(nailnaeil://auth/callback)로 이미 토큰을 받은 채로 MAIN에 바로 진입한 경우도 기기 토큰을 등록한다.
+    LaunchedEffect(startDestination) {
+        if (startDestination == Routes.MAIN) onLoginSuccess()
+    }
+
+    NavHost(navController = navController, startDestination = startDestination) {
+        composable(Routes.UI_PREVIEW) {
+            UiPreviewScreen()
+        }
+
         composable(Routes.SPLASH) {
             SplashScreen(
                 onTimeout = {
@@ -81,7 +100,7 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                     }
                 },
-                onNaverLoginClick = {
+                onTestLoginSuccess = {
                     onLoginSuccess()
                     navController.navigate(Routes.MAIN) {
                         popUpTo(Routes.PERMISSION) { inclusive = true }
@@ -111,7 +130,7 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
                 onTabSelected = { mainSelectedTab = it },
                 onAddressClick = { navController.navigate(Routes.ADDRESS_SETTINGS) },
                 onNotificationClick = {},
-                onNeedUpgrade = {},
+                onNeedUpgrade = { navController.navigate(Routes.PLAN_SELECTION) },
                 onStartEstimate = { navController.navigate(Routes.QUOTE_FLOW) },
                 onMagazineClick = { design -> navController.navigate(Routes.magazineDetail(design.designId.toString())) },
                 onEstimateClick = { estimate -> navController.navigate(Routes.estimateComparison(estimate.estimateId.toString())) },
@@ -152,7 +171,28 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
                 designId = designId,
                 onBackClick = { navController.popBackStack() },
                 onStartEstimate = { navController.navigate(Routes.QUOTE_FLOW) },
-                onProposalClick = { proposalId -> navController.navigate(Routes.shopDetail(proposalId.toString())) }
+                onProposalClick = { proposalId -> navController.navigate(Routes.shopDetail(proposalId.toString())) },
+                onSimilarDesignClick = { similarDesignId -> navController.navigate(Routes.magazineDetail(similarDesignId.toString())) },
+                onSeeAllProposalsClick = { id -> navController.navigate(Routes.recentProposalsAll(id.toString())) },
+                onSeeAllSimilarDesignsClick = { id -> navController.navigate(Routes.similarDesignsAll(id.toString())) }
+            )
+        }
+
+        composable(Routes.SIMILAR_DESIGNS_ALL) { backStackEntry ->
+            val designId = backStackEntry.arguments?.getString("designId")?.toLongOrNull() ?: 0L
+            SimilarDesignsScreen(
+                designId = designId,
+                onBackClick = { navController.popBackStack() },
+                onDesignClick = { clickedId -> navController.navigate(Routes.magazineDetail(clickedId.toString())) }
+            )
+        }
+
+        composable(Routes.RECENT_PROPOSALS_ALL) { backStackEntry ->
+            val designId = backStackEntry.arguments?.getString("designId")?.toLongOrNull() ?: 0L
+            RecentProposalsScreen(
+                designId = designId,
+                onBackClick = { navController.popBackStack() },
+                onRequestEstimate = { shopId -> navController.navigate(Routes.shopDetail(shopId.toString())) }
             )
         }
 
@@ -265,6 +305,27 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
             )
         }
 
+        composable(Routes.PLAN_SELECTION) {
+            PlanSelectionScreen(
+                onBackClick = { navController.popBackStack() },
+                onSelectNPlus = { navController.navigate(Routes.PLAN_PAYMENT) }
+            )
+        }
+
+        composable(Routes.PLAN_PAYMENT) {
+            PlanPaymentScreen(
+                onBackClick = { navController.popBackStack() },
+                onConfirm = { navController.navigate(Routes.PLAN_COMPLETE) }
+            )
+        }
+
+        composable(Routes.PLAN_COMPLETE) {
+            PlanCompleteScreen(
+                onBackClick = { navController.popBackStack() },
+                onConfirm = { navController.popBackStack(Routes.MAIN, inclusive = false) }
+            )
+        }
+
         composable(Routes.ADDRESS_SETTINGS) {
             AddressSettingsScreen(
                 onBackClick = { navController.popBackStack() },
@@ -277,8 +338,9 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
             AddressEditScreen(
                 onBackClick = { navController.popBackStack() },
                 onModifyClick = { address ->
-                    navController.navigate(Routes.addressForm(address.id))
-                }
+                    navController.navigate(Routes.addressForm(address.addressId.toString()))
+                },
+                onAddClick = { navController.navigate(Routes.addressForm("new")) }
             )
         }
 

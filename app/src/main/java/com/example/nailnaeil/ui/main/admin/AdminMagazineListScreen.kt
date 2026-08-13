@@ -25,9 +25,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,7 +33,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -71,7 +68,6 @@ fun AdminMagazineListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showDeleteConfirm by remember { mutableStateOf(false) }
-    var newCategoryInput by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -104,12 +100,9 @@ fun AdminMagazineListScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 12.dp, top = 8.dp),
+                    .padding(start = 16.dp, top = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = { viewModel.toggleCategoryEditMode() }) {
-                    Icon(Icons.Filled.Edit, contentDescription = "카테고리 수정", tint = if (uiState.isCategoryEditMode) MutedRosePrimary else TextSecondary)
-                }
                 LazyRow(
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -119,41 +112,10 @@ fun AdminMagazineListScreen(
                         CategoryChip(
                             label = category,
                             selected = category == uiState.selectedCategory,
-                            editMode = uiState.isCategoryEditMode && category != "전체",
-                            onClick = { if (!uiState.isCategoryEditMode) viewModel.selectCategory(category) },
-                            onRemove = { viewModel.removeCategory(category) }
+                            onClick = { viewModel.selectCategory(category) }
                         )
                     }
                 }
-            }
-
-            if (uiState.isCategoryEditMode) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = newCategoryInput,
-                        onValueChange = { newCategoryInput = it },
-                        placeholder = { Text("새 카테고리 이름") },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f)
-                    )
-                    TextButton(onClick = {
-                        viewModel.addCategory(newCategoryInput.trim())
-                        newCategoryInput = ""
-                    }) {
-                        Text("추가", fontWeight = FontWeight.Bold)
-                    }
-                }
-                Text(
-                    text = "※ 카테고리는 이 기기에서만 유지돼요. 서버에 저장하는 기능은 아직 없어요.",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = TextSecondary,
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
-                )
             }
 
             Box(modifier = Modifier.weight(1f)) {
@@ -231,7 +193,7 @@ fun AdminMagazineListScreen(
 }
 
 @Composable
-private fun CategoryChip(label: String, selected: Boolean, editMode: Boolean, onClick: () -> Unit, onRemove: () -> Unit) {
+private fun CategoryChip(label: String, selected: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
@@ -246,17 +208,6 @@ private fun CategoryChip(label: String, selected: Boolean, editMode: Boolean, on
             color = if (selected) SurfaceWhite else TextSecondary,
             fontWeight = FontWeight.Bold
         )
-        if (editMode) {
-            Icon(
-                Icons.Filled.RemoveCircle,
-                contentDescription = "$label 삭제",
-                tint = if (selected) SurfaceWhite else MutedRosePrimary,
-                modifier = Modifier
-                    .padding(start = 4.dp)
-                    .size(16.dp)
-                    .clickable(onClick = onRemove)
-            )
-        }
     }
 }
 

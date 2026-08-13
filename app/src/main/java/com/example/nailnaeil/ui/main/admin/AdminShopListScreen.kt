@@ -1,5 +1,6 @@
 package com.example.nailnaeil.ui.main.admin
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -31,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,7 +42,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,8 +63,17 @@ fun AdminShopListScreen(
     onShopClick: (Long) -> Unit,
     viewModel: AdminShopListViewModel = viewModel { AdminShopListViewModel() }
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var showSyncDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.syncResultMessage) {
+        uiState.syncResultMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            viewModel.consumeSyncResultMessage()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -71,6 +85,13 @@ fun AdminShopListScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showSyncDialog = true }, enabled = !uiState.isSyncing) {
+                        if (uiState.isSyncing) {
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        } else {
+                            Icon(Icons.Filled.Sync, contentDescription = "네일샵 데이터 동기화")
+                        }
+                    }
                     if (uiState.isSelectMode) {
                         IconButton(onClick = { viewModel.toggleSelectMode() }) {
                             Icon(Icons.Filled.Close, contentDescription = "선택 취소")
@@ -162,6 +183,76 @@ fun AdminShopListScreen(
                 viewModel.deleteSelected {}
             }
         )
+    }
+
+    if (showSyncDialog) {
+        AdminShopSyncDialog(
+            onDismiss = { showSyncDialog = false },
+            onConfirm = { industryCode, pageSize, maxPages ->
+                showSyncDialog = false
+                viewModel.syncShops(industryCode, pageSize, maxPages)
+            }
+        )
+    }
+}
+
+@Composable
+private fun AdminShopSyncDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (industryCode: String, pageSize: Int?, maxPages: Int?) -> Unit
+) {
+    var industryCode by remember { mutableStateOf("") }
+    var pageSize by remember { mutableStateOf("") }
+    var maxPages by remember { mutableStateOf("") }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .background(SurfaceWhite, RoundedCornerShape(12.dp))
+                .padding(24.dp)
+        ) {
+            Text(text = "네일샵 데이터 동기화", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                text = "소상공인 상가정보 API에서 지정한 업종 코드의 네일샵 데이터를 불러와요.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextSecondary,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            OutlinedTextField(
+                value = industryCode,
+                onValueChange = { industryCode = it },
+                singleLine = true,
+                label = { Text("상권업종 소분류 코드") },
+                placeholder = { Text("예: I2015") },
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+            )
+            OutlinedTextField(
+                value = pageSize,
+                onValueChange = { pageSize = it.filter(Char::isDigit) },
+                singleLine = true,
+                label = { Text("페이지당 개수 (선택, 최대 1000)") },
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+            )
+            OutlinedTextField(
+                value = maxPages,
+                onValueChange = { maxPages = it.filter(Char::isDigit) },
+                singleLine = true,
+                label = { Text("최대 페이지 수 (선택, 최대 100)") },
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+            )
+            Row(modifier = Modifier.padding(top = 20.dp)) {
+                TextButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("취소") }
+                TextButton(
+                    onClick = { onConfirm(industryCode, pageSize.toIntOrNull(), maxPages.toIntOrNull()) },
+                    enabled = industryCode.isNotBlank(),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("동기화", color = MutedRosePrimary, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
     }
 }
 

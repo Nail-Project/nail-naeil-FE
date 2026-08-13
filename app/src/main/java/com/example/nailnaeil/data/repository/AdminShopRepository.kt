@@ -8,6 +8,7 @@ import com.example.nailnaeil.data.remote.apiCallUnit
 import com.example.nailnaeil.data.remote.dto.ShopAdmin
 import com.example.nailnaeil.data.remote.dto.ShopAdminInput
 import com.example.nailnaeil.data.remote.dto.ShopAdminListResponse
+import com.example.nailnaeil.data.remote.dto.ShopSyncRequest
 
 class AdminShopRepository(
     private val api: AdminApi,
@@ -21,6 +22,11 @@ class AdminShopRepository(
         } else {
             Result.success(key)
         }
+    }
+
+    suspend fun syncShops(industryCode: String, pageSize: Int? = null, maxPages: Int? = null): Result<Unit> {
+        val key = requireAdminSyncKey().getOrElse { return Result.failure(it) }
+        return apiCallUnit { api.syncShops(key, ShopSyncRequest(industryCode, pageSize, maxPages)) }
     }
 
     suspend fun getShops(cursor: Long? = null, limit: Int? = null, active: String? = null): Result<ShopAdminListResponse> {

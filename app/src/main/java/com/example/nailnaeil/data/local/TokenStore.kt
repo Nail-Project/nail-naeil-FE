@@ -29,9 +29,9 @@ class TokenStore(context: Context) {
         get() = prefs.getString(KEY_ADMIN_SYNC_KEY, null)
         set(value) = prefs.edit { putString(KEY_ADMIN_SYNC_KEY, value) }
 
-    /** 관리자 디자인(매거진) API(x-admin-design-key) 인증용. */
+    /** 관리자 디자인(매거진) API(x-admin-design-key) 인증용. 기본값은 발급받은 키로 미리 채워둔다. */
     var adminDesignKey: String?
-        get() = prefs.getString(KEY_ADMIN_DESIGN_KEY, null)
+        get() = prefs.getString(KEY_ADMIN_DESIGN_KEY, "nail-naeil-design-admin-2026-secret")
         set(value) = prefs.edit { putString(KEY_ADMIN_DESIGN_KEY, value) }
 
     fun clear() = prefs.edit { clear() }

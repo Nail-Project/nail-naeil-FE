@@ -4,6 +4,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,12 +16,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.nailnaeil.data.remote.dto.UserAddress
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -46,6 +52,7 @@ import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.example.nailnaeil.di.AppContainer
+import com.example.nailnaeil.ui.main.address.AddressState
 import com.example.nailnaeil.ui.quote.QuoteUiState
 import com.example.nailnaeil.ui.quote.SearchRadius
 import com.example.nailnaeil.ui.quote.components.BackTitleHeader
@@ -60,6 +67,7 @@ import com.example.nailnaeil.ui.theme.SurfaceWhite
 import com.example.nailnaeil.ui.theme.TextMain
 import com.example.nailnaeil.ui.theme.TextSecondary
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RangeSelectScreen(
     state: QuoteUiState,
@@ -68,6 +76,7 @@ fun RangeSelectScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    var showAddressPicker by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -82,7 +91,14 @@ fun RangeSelectScreen(
     }
 
     LaunchedEffect(Unit) {
-        if (hasLocationPermission(context)) {
+        if (AddressState.addresses.isEmpty()) AddressState.refresh()
+        val selectedAddress = AddressState.selectedAddress
+        if (selectedAddress != null) {
+            // 주소 설정에서 고른 위치가 있으면 GPS보다 그 위치를 우선한다.
+            state.latitude.value = selectedAddress.latitude
+            state.longitude.value = selectedAddress.longitude
+            state.neighborhood.value = selectedAddress.label
+        } else if (hasLocationPermission(context)) {
             val location = lastKnownLocation(context)
             if (location != null) {
                 state.latitude.value = location.latitude
@@ -120,12 +136,25 @@ fun RangeSelectScreen(
 
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text(text = "견적 받을 네일샵 범위", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextMain)
-            Text(
-                text = state.neighborhood.value,
-                fontSize = 13.sp,
-                color = TextSecondary,
-                modifier = Modifier.padding(top = 8.dp)
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .clickable { showAddressPicker = true }
+            ) {
+                Text(
+                    text = state.neighborhood.value,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextMain
+                )
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowDown,
+                    contentDescription = "중심 위치 변경",
+                    tint = TextMain,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
             if (state.locationError.value != null) {
                 Text(
                     text = state.locationError.value ?: "",
@@ -184,6 +213,64 @@ fun RangeSelectScreen(
                 modifier = Modifier.padding(top = 16.dp)
             )
         }
+    }
+
+    if (showAddressPicker) {
+        val sheetState = rememberModalBottomSheetState()
+        ModalBottomSheet(onDismissRequest = { showAddressPicker = false }, sheetState = sheetState) {
+            AddressPickerContent(
+                addresses = AddressState.addresses,
+                currentAddressId = AddressState.selectedAddressId,
+                onSelect = { address ->
+                    AddressState.setCurrent(address.addressId)
+                    state.latitude.value = address.latitude
+                    state.longitude.value = address.longitude
+                    state.neighborhood.value = address.label
+                    showAddressPicker = false
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun AddressPickerContent(
+    addresses: List<UserAddress>,
+    currentAddressId: Long?,
+    onSelect: (UserAddress) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
+        Text(
+            text = "중심 위치 선택",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = TextMain,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+        addresses.forEach { address ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onSelect(address) }
+                    .padding(vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        text = address.label,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (address.addressId == currentAddressId) MutedRosePrimary else TextMain
+                    )
+                    Text(text = address.address, fontSize = 12.sp, color = TextSecondary)
+                }
+                if (address.addressId == currentAddressId) {
+                    Text(text = "선택됨", fontSize = 12.sp, color = MutedRosePrimary, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+        Box(modifier = Modifier.size(1.dp, 12.dp))
     }
 }
 

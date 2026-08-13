@@ -2,6 +2,7 @@ package com.example.nailnaeil.navigation
 
 /** 최상위 NavHost 라우트 (온보딩 + 메인 진입 후 풀스크린으로 뜨는 화면들) */
 object Routes {
+    const val UI_PREVIEW = "ui_preview" // TODO: UI 리뷰 끝나면 이 줄과 관련 코드 제거
     const val SPLASH = "splash"
     const val PERMISSION = "permission"
     const val LOGIN = "login"
@@ -33,6 +34,12 @@ object Routes {
 
     const val MAGAZINE_DETAIL = "magazine_detail/{magazineId}"
     fun magazineDetail(magazineId: String) = "magazine_detail/$magazineId"
+
+    const val SIMILAR_DESIGNS_ALL = "similar_designs_all/{designId}"
+    fun similarDesignsAll(designId: String) = "similar_designs_all/$designId"
+
+    const val RECENT_PROPOSALS_ALL = "recent_proposals_all/{designId}"
+    fun recentProposalsAll(designId: String) = "recent_proposals_all/$designId"
 
     const val NOTIFICATION = "notification"
 

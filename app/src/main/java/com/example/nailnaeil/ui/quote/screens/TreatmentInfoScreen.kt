@@ -18,7 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +36,7 @@ import com.example.nailnaeil.ui.quote.QuoteUiState
 import com.example.nailnaeil.ui.quote.components.BackTitleHeader
 import com.example.nailnaeil.ui.quote.components.ErrorText
 import com.example.nailnaeil.ui.quote.components.OptionCard
+import com.example.nailnaeil.ui.quote.components.PriceRangeSlider
 import com.example.nailnaeil.ui.quote.components.PrimaryBottomButton
 import com.example.nailnaeil.ui.quote.components.QuoteProgressBar
 import com.example.nailnaeil.ui.quote.components.SectionTitle
@@ -180,23 +180,22 @@ fun TreatmentInfoScreen(
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 4.dp, bottom = 8.dp)
                     )
-                    RangeSlider(
-                        value = state.priceLower.floatValue..state.priceUpper.floatValue,
-                        onValueChange = {
-                            state.priceLower.floatValue = it.start
-                            state.priceUpper.floatValue = it.endInclusive
+                    PriceRangeSlider(
+                        lower = state.priceLower.floatValue,
+                        upper = state.priceUpper.floatValue,
+                        onLowerChange = {
+                            state.priceLower.floatValue = it
                             state.noPricePreference.value = false
                         },
-                        valueRange = 50_000f..150_000f,
-                        steps = 99,
-                        colors = androidx.compose.material3.SliderDefaults.colors(
-                            thumbColor = SurfaceWhite,
-                            activeTrackColor = MutedRosePrimary,
-                            inactiveTrackColor = BorderLight
-                        )
+                        onUpperChange = {
+                            state.priceUpper.floatValue = it
+                            state.noPricePreference.value = false
+                        },
+                        valueRange = 50_000f..150_000f
                     )
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(text = "50,000원", fontSize = 11.sp, color = TextSecondary)
+                        Text(text = "100,000원", fontSize = 11.sp, color = TextSecondary)
                         Text(text = "150,000원 ~", fontSize = 11.sp, color = TextSecondary)
                     }
                 }

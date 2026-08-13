@@ -68,6 +68,9 @@ fun MyPageScreen(
     onNotificationSettingClick: () -> Unit,
     onNoticeClick: () -> Unit,
     onTermsPolicyClick: () -> Unit,
+    onNeedUpgrade: () -> Unit,
+    onInProgressEstimatesClick: () -> Unit = {},
+    onUpcomingReservationsClick: () -> Unit = {},
     onAdminUnlocked: () -> Unit = {},
     viewModel: ProfileViewModel = viewModel { ProfileViewModel() }
 ) {
@@ -123,26 +126,34 @@ fun MyPageScreen(
                             fontWeight = FontWeight.Bold
                         )
                         Row(modifier = Modifier.padding(top = 4.dp)) {
-                            Text(
-                                text = "진행중인 견적",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = TextSecondary
-                            )
-                            Text(
-                                text = " ${profile?.inProgressEstimateCount ?: 0}",
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "   시술예정 예약",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = TextSecondary
-                            )
-                            Text(
-                                text = " ${profile?.upcomingReservationCount ?: 0}",
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Row(modifier = Modifier.clickable(onClick = onInProgressEstimatesClick)) {
+                                Text(
+                                    text = "진행중인 견적",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TextSecondary
+                                )
+                                Text(
+                                    text = " ${profile?.inProgressEstimateCount ?: 0}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .padding(start = 12.dp)
+                                    .clickable(onClick = onUpcomingReservationsClick)
+                            ) {
+                                Text(
+                                    text = "시술예정 예약",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TextSecondary
+                                )
+                                Text(
+                                    text = " ${profile?.upcomingReservationCount ?: 0}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                     OutlinedButton(onClick = onEditProfileClick) {
@@ -182,7 +193,15 @@ fun MyPageScreen(
                     }
                 }
 
-                if (profile?.isNPlus != true) Column(
+                if (profile?.isNPlus == true) {
+                    NPlusStatusCard(
+                        joinedAt = profile.nPlusJoinedAt,
+                        onPaymentHistoryClick = {
+                            Toast.makeText(context, "결제내역 화면은 추후 연결됩니다.", Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier.padding(bottom = 36.dp)
+                    )
+                } else Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 36.dp)
@@ -198,9 +217,7 @@ fun MyPageScreen(
                         modifier = Modifier.padding(top = 12.dp)
                     )
                     Button(
-                        onClick = {
-                            Toast.makeText(context, "N 플러스 혜택 화면은 추후 연결됩니다.", Toast.LENGTH_SHORT).show()
-                        },
+                        onClick = onNeedUpgrade,
                         colors = ButtonDefaults.buttonColors(containerColor = MutedRosePrimary),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -290,6 +307,77 @@ private fun AdminPasswordDialog(onDismiss: () -> Unit, onSubmit: (String) -> Uni
                 TextButton(onClick = { onSubmit(password) }) { Text("확인", fontWeight = FontWeight.Bold) }
             }
         }
+    }
+}
+
+private const val N_PLUS_MONTHLY_PRICE = 3_200
+
+@Composable
+private fun NPlusStatusCard(
+    joinedAt: String?,
+    onPaymentHistoryClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(SurfaceWhite)
+            .border(1.dp, DividerGray, RoundedCornerShape(12.dp))
+            .padding(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Text(
+                    text = "플러스",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MutedRosePrimary,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+                Text(
+                    text = " 이용 중",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable(onClick = onPaymentHistoryClick)
+            ) {
+                Text(text = "결제내역", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                Icon(
+                    Icons.Filled.ChevronRight,
+                    contentDescription = "결제내역 보기",
+                    tint = TextSecondary,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+        Text(
+            text = "요금제 가입일 ${joinedAt ?: "-"}",
+            style = MaterialTheme.typography.bodySmall,
+            color = TextSecondary,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+        Text(
+            text = "${"%,d".format(N_PLUS_MONTHLY_PRICE)}원/ 월",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp),
+            textAlign = TextAlign.End
+        )
     }
 }
 

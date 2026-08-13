@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -68,6 +69,7 @@ fun EditProfileScreen(
     }
 
     Scaffold(
+        containerColor = SurfaceWhite,
         topBar = {
             TopAppBar(
                 title = { Text("프로필 수정") },
@@ -80,7 +82,8 @@ fun EditProfileScreen(
                     TextButton(onClick = { viewModel.updateEmail(email) }, enabled = !uiState.isSaving) {
                         Text(if (uiState.isSaving) "저장 중..." else "저장")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = SurfaceWhite)
             )
         }
     ) { padding ->

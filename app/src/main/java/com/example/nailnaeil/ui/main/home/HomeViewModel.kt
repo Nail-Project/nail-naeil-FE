@@ -69,7 +69,7 @@ class HomeViewModel(
         viewModelScope.launch {
             val category = _uiState.value.selectedCategory.takeUnless { it == "전체" }
             designRepository.getDesigns(category = category, size = 8)
-                .onSuccess { response -> _uiState.update { it.copy(designs = response.designs) } }
+                .onSuccess { response -> _uiState.update { it.copy(designs = response.designs.orEmpty()) } }
         }
     }
 
