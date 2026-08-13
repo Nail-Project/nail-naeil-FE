@@ -1,20 +1,31 @@
 package com.example.nailnaeil.navigation
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.nailnaeil.BuildConfig
 import com.example.nailnaeil.di.AppContainer
 import com.example.nailnaeil.ui.main.MainScaffold
+import com.example.nailnaeil.ui.main.admin.AdminHomeScreen
+import com.example.nailnaeil.ui.main.admin.AdminMagazineDetailScreen
+import com.example.nailnaeil.ui.main.admin.AdminMagazineListScreen
+import com.example.nailnaeil.ui.main.admin.AdminSettingsScreen
+import com.example.nailnaeil.ui.main.admin.AdminShopDetailScreen
+import com.example.nailnaeil.ui.main.admin.AdminShopListScreen
 import com.example.nailnaeil.ui.main.address.AddressEditScreen
 import com.example.nailnaeil.ui.main.address.AddressFormScreen
 import com.example.nailnaeil.ui.main.address.AddressSettingsScreen
+import com.example.nailnaeil.ui.main.design.DesignDetailScreen
 import com.example.nailnaeil.ui.main.estimate.EstimateComparisonScreen
 import com.example.nailnaeil.ui.main.estimate.ShopDetailScreen
 import com.example.nailnaeil.ui.main.my.EditProfileScreen
@@ -26,7 +37,6 @@ import com.example.nailnaeil.ui.main.my.NotificationSettingScreen
 import com.example.nailnaeil.ui.main.my.TermsPolicyScreen
 import com.example.nailnaeil.ui.main.reservation.ReservationCompleteScreen
 import com.example.nailnaeil.ui.main.reservation.ReservationDetailScreen
-import com.example.nailnaeil.ui.main.reservation.ReservationMockState
 import com.example.nailnaeil.ui.onboarding.KakaoConsentScreen
 import com.example.nailnaeil.ui.onboarding.LoginScreen
 import com.example.nailnaeil.ui.onboarding.PermissionScreen
@@ -39,6 +49,7 @@ import kotlinx.coroutines.launch
 fun NailNailNavGraph(navController: NavHostController = rememberNavController()) {
     var mainSelectedTab by remember { mutableStateOf(MainTabRoutes.HOME) }
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     // 로그인 성공 시점에 호출되는 훅. 실제 로그인 API 연동 시 TokenStore.authToken 저장 이후 이 함수를 호출할 것.
     fun onLoginSuccess() {
@@ -62,7 +73,14 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
 
         composable(Routes.LOGIN) {
             LoginScreen(
-                onKakaoLoginClick = { navController.navigate(Routes.KAKAO_CONSENT) },
+                onKakaoLoginClick = {
+                    // 카카오 인가 페이지로 이동 → 동의 후 백엔드가 앱 딥링크로 리다이렉트할 예정이나,
+                    // 그 콜백 스킴이 아직 정해지지 않아 앱이 가로채는 부분은 미구현 상태.
+                    val url = "${BuildConfig.BASE_URL}api/v1/auth/kakao"
+                    runCatching {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                    }
+                },
                 onNaverLoginClick = {
                     onLoginSuccess()
                     navController.navigate(Routes.MAIN) {
@@ -95,10 +113,11 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
                 onNotificationClick = {},
                 onNeedUpgrade = {},
                 onStartEstimate = { navController.navigate(Routes.QUOTE_FLOW) },
-                onMagazineClick = {},
-                onEstimateClick = {},
+                onMagazineClick = { design -> navController.navigate(Routes.magazineDetail(design.designId.toString())) },
+                onEstimateClick = { estimate -> navController.navigate(Routes.estimateComparison(estimate.estimateId.toString())) },
+                onSeeAllEstimatesClick = { mainSelectedTab = MainTabRoutes.ESTIMATE_LIST },
                 onEstimateItemClick = { item ->
-                    navController.navigate(Routes.estimateComparison(item.id))
+                    navController.navigate(Routes.estimateComparison(item.estimateId.toString()))
                 },
                 onReservationItemClick = { reservationId ->
                     navController.navigate(Routes.reservationDetail(reservationId))
@@ -109,7 +128,8 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
                 onFavoriteShopClick = { navController.navigate(Routes.FAVORITE_SHOP) },
                 onNotificationSettingClick = { navController.navigate(Routes.NOTIFICATION_SETTING) },
                 onNoticeClick = { navController.navigate(Routes.NOTICE) },
-                onTermsPolicyClick = { navController.navigate(Routes.TERMS_POLICY) }
+                onTermsPolicyClick = { navController.navigate(Routes.TERMS_POLICY) },
+                onAdminUnlocked = { navController.navigate(Routes.ADMIN_HOME) }
             )
         }
 
@@ -122,11 +142,17 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
             EstimateComparisonScreen(
                 estimateId = estimateId,
                 onBackClick = { navController.popBackStack() },
-                onShopDetailClick = { shopId -> navController.navigate(Routes.shopDetail(shopId)) },
-                onReservationConfirmed = { reservation ->
-                    ReservationMockState.addConfirmed(reservation)
-                    navController.navigate(Routes.RESERVATION_COMPLETE)
-                }
+                onShopDetailClick = { proposalId -> navController.navigate(Routes.shopDetail(proposalId.toString())) }
+            )
+        }
+
+        composable(Routes.MAGAZINE_DETAIL) { backStackEntry ->
+            val designId = backStackEntry.arguments?.getString("magazineId")?.toLongOrNull() ?: 0L
+            DesignDetailScreen(
+                designId = designId,
+                onBackClick = { navController.popBackStack() },
+                onStartEstimate = { navController.navigate(Routes.QUOTE_FLOW) },
+                onProposalClick = { proposalId -> navController.navigate(Routes.shopDetail(proposalId.toString())) }
             )
         }
 
@@ -135,10 +161,7 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
             ShopDetailScreen(
                 shopId = shopId,
                 onBackClick = { navController.popBackStack() },
-                onReservationConfirmed = { reservation ->
-                    ReservationMockState.addConfirmed(reservation)
-                    navController.navigate(Routes.RESERVATION_COMPLETE)
-                }
+                onReservationConfirmed = { navController.navigate(Routes.RESERVATION_COMPLETE) }
             )
         }
 
@@ -163,7 +186,12 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
         composable(Routes.MY_INFO) {
             MyInfoScreen(
                 onBackClick = { navController.popBackStack() },
-                onEditProfileClick = { navController.navigate(Routes.EDIT_PROFILE) }
+                onEditProfileClick = { navController.navigate(Routes.EDIT_PROFILE) },
+                onLoggedOut = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.SPLASH) { inclusive = true }
+                    }
+                }
             )
         }
 
@@ -189,6 +217,52 @@ fun NailNailNavGraph(navController: NavHostController = rememberNavController())
 
         composable(Routes.TERMS_POLICY) {
             TermsPolicyScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(Routes.ADMIN_HOME) {
+            AdminHomeScreen(
+                onBackClick = { navController.popBackStack() },
+                onMagazineManageClick = { navController.navigate(Routes.ADMIN_MAGAZINE_LIST) },
+                onShopManageClick = { navController.navigate(Routes.ADMIN_SHOP_LIST) },
+                onSettingsClick = { navController.navigate(Routes.ADMIN_SETTINGS) }
+            )
+        }
+
+        composable(Routes.ADMIN_SETTINGS) {
+            AdminSettingsScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(Routes.ADMIN_SHOP_LIST) {
+            AdminShopListScreen(
+                onBackClick = { navController.popBackStack() },
+                onShopClick = { shopId -> navController.navigate(Routes.adminShopDetail(shopId)) }
+            )
+        }
+
+        composable(Routes.ADMIN_SHOP_DETAIL) { backStackEntry ->
+            val shopId = backStackEntry.arguments?.getString("shopId")?.toLongOrNull() ?: 0L
+            AdminShopDetailScreen(
+                shopId = shopId,
+                onBackClick = { navController.popBackStack() },
+                onSaved = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.ADMIN_MAGAZINE_LIST) {
+            AdminMagazineListScreen(
+                onBackClick = { navController.popBackStack() },
+                onDesignClick = { designId -> navController.navigate(Routes.adminMagazineDetail(designId.toString())) },
+                onAddClick = { navController.navigate(Routes.adminMagazineDetail(Routes.ADMIN_MAGAZINE_NEW_ID)) }
+            )
+        }
+
+        composable(Routes.ADMIN_MAGAZINE_DETAIL) { backStackEntry ->
+            val designIdArg = backStackEntry.arguments?.getString("designId") ?: Routes.ADMIN_MAGAZINE_NEW_ID
+            AdminMagazineDetailScreen(
+                designId = designIdArg.toLongOrNull(),
+                onBackClick = { navController.popBackStack() },
+                onSaved = { navController.popBackStack() }
+            )
         }
 
         composable(Routes.ADDRESS_SETTINGS) {

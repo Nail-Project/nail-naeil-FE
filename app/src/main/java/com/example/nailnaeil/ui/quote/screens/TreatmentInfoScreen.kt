@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,20 +25,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import com.example.nailnaeil.data.remote.dto.NailType
+import com.example.nailnaeil.data.remote.dto.RemovalType
+import com.example.nailnaeil.ui.main.estimate.label
 import com.example.nailnaeil.ui.quote.QuoteUiState
-import com.example.nailnaeil.ui.quote.RemovalOption
-import com.example.nailnaeil.ui.quote.TreatmentPart
 import com.example.nailnaeil.ui.quote.components.BackTitleHeader
 import com.example.nailnaeil.ui.quote.components.ErrorText
 import com.example.nailnaeil.ui.quote.components.OptionCard
 import com.example.nailnaeil.ui.quote.components.PrimaryBottomButton
 import com.example.nailnaeil.ui.quote.components.QuoteProgressBar
-import com.example.nailnaeil.ui.quote.components.RemovableTag
 import com.example.nailnaeil.ui.quote.components.SectionTitle
-import com.example.nailnaeil.ui.quote.components.SelectableChip
 import com.example.nailnaeil.ui.theme.BorderLight
 import com.example.nailnaeil.ui.theme.MutedRosePrimary
 import com.example.nailnaeil.ui.theme.SurfaceWhite
@@ -77,18 +75,20 @@ fun TreatmentInfoScreen(
                 modifier = Modifier.padding(top = 6.dp, bottom = 24.dp)
             )
 
-            Text(text = "선택한 디자인 (${state.selectedPhotoIds.size}/3)", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+            Text(text = "선택한 디자인 (${state.selectedPhotoUris.size}/3)", fontWeight = FontWeight.Bold, fontSize = 15.sp)
             Row(
                 modifier = Modifier.padding(top = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                state.selectedPhotos.forEach { photo ->
+                state.selectedPhotoUris.forEach { uri ->
                     Box(modifier = Modifier.size(80.dp)) {
-                        Box(
+                        AsyncImage(
+                            model = uri,
+                            contentDescription = "선택한 사진",
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(RoundedCornerShape(10.dp))
-                                .background(photo.color)
                         )
                         Box(
                             modifier = Modifier
@@ -97,17 +97,14 @@ fun TreatmentInfoScreen(
                                 .size(18.dp)
                                 .clip(CircleShape)
                                 .background(SurfaceWhite)
-                                .clickable {
-                                    state.selectedPhotoIds.remove(photo.id)
-                                    state.syncDesignTags()
-                                },
+                                .clickable { state.selectedPhotoUris.remove(uri) },
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(Icons.Filled.Close, contentDescription = "제거", modifier = Modifier.size(12.dp), tint = TextMain)
                         }
                     }
                 }
-                if (state.selectedPhotoIds.size < 3) {
+                if (state.selectedPhotoUris.size < 3) {
                     Box(
                         modifier = Modifier
                             .size(80.dp)
@@ -124,20 +121,13 @@ fun TreatmentInfoScreen(
                 }
             }
 
-            Text(text = "디자인 요약", fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(top = 24.dp))
-            FlowTagRow(
-                tags = state.designTags,
-                onRemove = { tag -> state.designTags.remove(tag) },
-                modifier = Modifier.padding(top = 10.dp)
-            )
-
             SectionTitle(text = "시술 부위", modifier = Modifier.padding(top = 28.dp))
             Row(modifier = Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                TreatmentPart.entries.forEach { part ->
+                NailType.entries.forEach { type ->
                     OptionCard(
-                        label = part.label,
-                        selected = state.treatmentPart.value == part,
-                        onClick = { state.treatmentPart.value = part }
+                        label = type.label(),
+                        selected = state.nailType.value == type,
+                        onClick = { state.nailType.value = type }
                     )
                 }
             }
@@ -147,19 +137,19 @@ fun TreatmentInfoScreen(
                 Text(text = " (중복 선택 가능)", fontSize = 12.sp, color = TextSecondary)
             }
             Column(modifier = Modifier.padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                RemovalOption.entries.chunked(2).forEach { rowOptions ->
+                RemovalType.entries.chunked(2).forEach { rowOptions ->
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         rowOptions.forEach { option ->
                             OptionCard(
-                                label = option.label,
-                                selected = state.removalOptions.contains(option),
+                                label = option.label(),
+                                selected = state.removalTypes.contains(option),
                                 onClick = { state.toggleRemoval(option) }
                             )
                         }
                     }
                 }
             }
-            if (state.removalOptions.isEmpty()) {
+            if (state.removalTypes.isEmpty()) {
                 ErrorText(text = "제거 여부를 하나 이상 선택해주세요")
             }
 
@@ -195,6 +185,7 @@ fun TreatmentInfoScreen(
                         onValueChange = {
                             state.priceLower.floatValue = it.start
                             state.priceUpper.floatValue = it.endInclusive
+                            state.noPricePreference.value = false
                         },
                         valueRange = 50_000f..150_000f,
                         steps = 99,
@@ -211,9 +202,9 @@ fun TreatmentInfoScreen(
                 }
             }
             Text(
-                text = "상관없음",
+                text = if (state.noPricePreference.value) "상관없음 (선택됨)" else "상관없음",
                 fontSize = 13.sp,
-                color = TextMain,
+                color = if (state.noPricePreference.value) MutedRosePrimary else TextMain,
                 textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
                 modifier = Modifier
                     .align(Alignment.End)
@@ -228,21 +219,7 @@ fun TreatmentInfoScreen(
         }
 
         Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            PrimaryBottomButton(text = "다음", onClick = onNext, enabled = state.removalOptions.isNotEmpty())
-        }
-    }
-}
-
-@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
-@Composable
-private fun FlowTagRow(tags: List<String>, onRemove: (String) -> Unit, modifier: Modifier = Modifier) {
-    androidx.compose.foundation.layout.FlowRow(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        tags.forEach { tag ->
-            RemovableTag(label = tag, onRemove = { onRemove(tag) })
+            PrimaryBottomButton(text = "다음", onClick = onNext, enabled = state.removalTypes.isNotEmpty())
         }
     }
 }

@@ -3,7 +3,6 @@ package com.example.nailnaeil.ui.main.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,17 +16,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nailnaeil.data.remote.dto.DesignSummary
+import com.example.nailnaeil.data.remote.dto.EstimateListItem
+import com.example.nailnaeil.ui.main.address.AddressMockState
 import com.example.nailnaeil.ui.main.home.components.EstimateUploadCard
 import com.example.nailnaeil.ui.main.home.components.InProgressEstimateSection
 import com.example.nailnaeil.ui.main.home.components.MagazineSection
-import com.example.nailnaeil.ui.main.address.AddressMockState
 import com.example.nailnaeil.ui.theme.SurfaceWhite
 
 @Composable
@@ -36,15 +36,16 @@ fun MainHomeScreen(
     onNotificationClick: () -> Unit,
     onNeedUpgrade: () -> Unit,
     onStartEstimate: () -> Unit,
-    onMagazineClick: (String) -> Unit,
-    onEstimateClick: (EstimateSummary) -> Unit
+    onMagazineClick: (DesignSummary) -> Unit,
+    onEstimateClick: (EstimateListItem) -> Unit,
+    onSeeAllEstimatesClick: () -> Unit = {},
+    viewModel: HomeViewModel = viewModel { HomeViewModel() }
 ) {
-    var selectedCategory by remember { mutableStateOf("전체") }
-    var likedIds by remember { mutableStateOf(setOf<String>()) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val uploadSubtitle = when {
-        HomeMockState.estimates.isEmpty() -> "최대 3장까지 가능해요"
-        HomeMockState.needsUpgrade() -> "견적 진행은 완료될 때까지 최대 1개만 가능해요"
+        uiState.inProgressEstimates.isEmpty() -> "최대 3장까지 가능해요"
+        uiState.needsUpgrade() -> "견적 진행은 완료될 때까지 최대 1개만 가능해요"
         else -> "더 많은 견적 받기"
     }
 
@@ -88,29 +89,26 @@ fun MainHomeScreen(
 
             EstimateUploadCard(
                 subtitle = uploadSubtitle,
-                activeEstimateCount = HomeMockState.estimates.size,
+                activeEstimateCount = uiState.inProgressEstimates.size,
                 onUploadClick = {
-                    if (HomeMockState.needsUpgrade()) onNeedUpgrade() else onStartEstimate()
+                    if (uiState.needsUpgrade()) onNeedUpgrade() else onStartEstimate()
                 },
                 onAvatarClick = onNeedUpgrade
             )
 
             InProgressEstimateSection(
-                estimates = HomeMockState.estimates,
-                onSeeAllClick = {},
+                estimates = uiState.inProgressEstimates,
+                onSeeAllClick = onSeeAllEstimatesClick,
                 onEstimateClick = onEstimateClick,
                 modifier = Modifier.padding(top = 28.dp)
             )
 
             MagazineSection(
-                items = MockMagazineItems,
-                selectedCategory = selectedCategory,
-                onCategorySelected = { selectedCategory = it },
-                likedIds = likedIds,
-                onLikeToggle = { id ->
-                    likedIds = if (likedIds.contains(id)) likedIds - id else likedIds + id
-                },
-                onItemClick = { onMagazineClick(it.id) },
+                items = uiState.designs,
+                selectedCategory = uiState.selectedCategory,
+                onCategorySelected = { viewModel.selectCategory(it) },
+                onLikeToggle = { viewModel.toggleDesignWish(it) },
+                onItemClick = onMagazineClick,
                 modifier = Modifier.padding(top = 28.dp, bottom = 24.dp)
             )
         }

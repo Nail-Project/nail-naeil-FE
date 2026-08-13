@@ -44,6 +44,16 @@ object Routes {
     const val ADDRESS_EDIT = "address_edit"
     const val ADDRESS_FORM = "address_form/{addressId}"
     fun addressForm(addressId: String) = "address_form/$addressId"
+
+    const val ADMIN_HOME = "admin_home"
+    const val ADMIN_SETTINGS = "admin_settings"
+    const val ADMIN_SHOP_LIST = "admin_shop_list"
+    const val ADMIN_SHOP_DETAIL = "admin_shop_detail/{shopId}"
+    fun adminShopDetail(shopId: Long) = "admin_shop_detail/$shopId"
+    const val ADMIN_MAGAZINE_LIST = "admin_magazine_list"
+    const val ADMIN_MAGAZINE_DETAIL = "admin_magazine_detail/{designId}"
+    fun adminMagazineDetail(designId: String) = "admin_magazine_detail/$designId"
+    const val ADMIN_MAGAZINE_NEW_ID = "new"
 }
 
 /** MainScaffold 내부 하단 탭 NavHost 라우트 */

@@ -30,6 +30,7 @@ import com.example.nailnaeil.ui.theme.TextSecondary
 @Composable
 fun RequestSuccessScreen(
     neighborhood: String,
+    shopCount: Int,
     onGoToQuoteBox: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -56,7 +57,7 @@ fun RequestSuccessScreen(
                 modifier = Modifier.padding(top = 20.dp)
             )
             Text(
-                text = "${neighborhood} 주변 샵들이 가격과 가능 시간을 확인 중이예요\n답변이 오는대로 알려드릴게요",
+                text = "$neighborhood 주변 ${shopCount}개 샵이 가격과 가능 시간을 확인 중이예요\n답변이 오는대로 알려드릴게요",
                 fontSize = 13.sp,
                 color = TextSecondary,
                 textAlign = TextAlign.Center,

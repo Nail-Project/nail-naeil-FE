@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,6 +34,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nailnaeil.data.remote.dto.ReservationListItem
 import com.example.nailnaeil.ui.main.reservation.components.ReservationCard
 import com.example.nailnaeil.ui.theme.MutedRosePrimary
 import com.example.nailnaeil.ui.theme.SurfaceWhite
@@ -42,10 +46,13 @@ import com.example.nailnaeil.ui.theme.TextSecondary
 private val ReservationTabs = listOf("확정된 예약", "지난 예약")
 
 @Composable
-fun ReservationListScreen(onReservationClick: (String) -> Unit, onStartEstimate: () -> Unit) {
+fun ReservationListScreen(
+    onReservationClick: (String) -> Unit,
+    onStartEstimate: () -> Unit,
+    viewModel: ReservationListViewModel = viewModel { ReservationListViewModel() }
+) {
     var selectedTab by remember { mutableStateOf(0) }
-    var confirmedSortAscending by remember { mutableStateOf(true) }
-    var pastSortAscending by remember { mutableStateOf(true) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -90,15 +97,19 @@ fun ReservationListScreen(onReservationClick: (String) -> Unit, onStartEstimate:
 
         if (selectedTab == 0) {
             ConfirmedReservationTab(
-                sortAscending = confirmedSortAscending,
-                onToggleSort = { confirmedSortAscending = !confirmedSortAscending },
+                isLoading = uiState.isLoadingConfirmed,
+                confirmed = uiState.confirmed,
+                sortAscending = uiState.confirmedSortAscending,
+                onToggleSort = { viewModel.toggleConfirmedSort() },
                 onReservationClick = onReservationClick,
                 onStartEstimate = onStartEstimate
             )
         } else {
             PastReservationTab(
-                sortAscending = pastSortAscending,
-                onToggleSort = { pastSortAscending = !pastSortAscending },
+                isLoading = uiState.isLoadingPast,
+                past = uiState.past,
+                sortAscending = uiState.pastSortAscending,
+                onToggleSort = { viewModel.togglePastSort() },
                 onReservationClick = onReservationClick
             )
         }
@@ -107,12 +118,17 @@ fun ReservationListScreen(onReservationClick: (String) -> Unit, onStartEstimate:
 
 @Composable
 private fun ConfirmedReservationTab(
+    isLoading: Boolean,
+    confirmed: List<ReservationListItem>,
     sortAscending: Boolean,
     onToggleSort: () -> Unit,
     onReservationClick: (String) -> Unit,
     onStartEstimate: () -> Unit
 ) {
-    val confirmed = ReservationMockState.confirmed
+    if (isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+        return
+    }
 
     if (confirmed.isEmpty()) {
         Column(
@@ -139,6 +155,8 @@ private fun ConfirmedReservationTab(
         return
     }
 
+    val sorted = if (sortAscending) confirmed.sortedBy { it.reservedAt } else confirmed.sortedByDescending { it.reservedAt }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -153,10 +171,10 @@ private fun ConfirmedReservationTab(
             )
         }
 
-        items(confirmed, key = { it.id }) { reservation ->
+        items(sorted, key = { it.reservationId }) { reservation ->
             ReservationCard(
                 reservation = reservation,
-                onDetailClick = { onReservationClick(reservation.id) },
+                onDetailClick = { onReservationClick(reservation.reservationId.toString()) },
                 modifier = Modifier.padding(top = 12.dp)
             )
         }
@@ -186,7 +204,7 @@ private fun ConfirmedReservationTab(
                     )
                 }
                 Text(
-                    text = "기존 젤 제거가 포함된 시술입니다. 예약 시간보다 10분 일찍 방문해 주시면 더욱 원활한 시술이 가능합니다.",
+                    text = "예약 시간보다 10분 일찍 방문해 주시면 더욱 원활한 시술이 가능합니다.",
                     style = MaterialTheme.typography.bodySmall,
                     color = TextSecondary,
                     modifier = Modifier.padding(start = 26.dp, top = 8.dp)
@@ -198,11 +216,18 @@ private fun ConfirmedReservationTab(
 
 @Composable
 private fun PastReservationTab(
+    isLoading: Boolean,
+    past: List<ReservationListItem>,
     sortAscending: Boolean,
     onToggleSort: () -> Unit,
     onReservationClick: (String) -> Unit
 ) {
-    val past = ReservationMockState.past
+    if (isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+        return
+    }
+
+    val sorted = if (sortAscending) past.sortedBy { it.reservedAt } else past.sortedByDescending { it.reservedAt }
 
     LazyColumn(
         modifier = Modifier
@@ -218,10 +243,10 @@ private fun PastReservationTab(
             )
         }
 
-        items(past, key = { it.id }) { reservation ->
+        items(sorted, key = { it.reservationId }) { reservation ->
             ReservationCard(
                 reservation = reservation,
-                onDetailClick = { onReservationClick(reservation.id) },
+                onDetailClick = { onReservationClick(reservation.reservationId.toString()) },
                 modifier = Modifier.padding(top = 12.dp)
             )
         }

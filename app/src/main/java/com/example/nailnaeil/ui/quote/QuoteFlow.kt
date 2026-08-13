@@ -106,6 +106,7 @@ fun QuoteFlow(onFinish: () -> Unit, modifier: Modifier = Modifier) {
 
             QuoteStep.SUCCESS -> RequestSuccessScreen(
                 neighborhood = state.neighborhood.value,
+                shopCount = state.nearbyShops.size,
                 onGoToQuoteBox = onFinish
             )
         }

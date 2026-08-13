@@ -22,8 +22,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,14 +38,34 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.nailnaeil.R
 import com.example.nailnaeil.ui.theme.SurfaceWhite
 import com.example.nailnaeil.ui.theme.TextSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditProfileScreen(onBackClick: () -> Unit) {
+fun EditProfileScreen(
+    onBackClick: () -> Unit,
+    viewModel: ProfileViewModel = viewModel { ProfileViewModel() }
+) {
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val profile = uiState.profile
+    var email by remember(profile?.email) { mutableStateOf(profile?.email ?: "") }
+
+    LaunchedEffect(uiState.saveSuccess) {
+        if (uiState.saveSuccess) {
+            viewModel.consumeSaveSuccess()
+            onBackClick()
+        }
+    }
+
+    LaunchedEffect(uiState.saveError) {
+        uiState.saveError?.let { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+    }
 
     Scaffold(
         topBar = {
@@ -48,6 +74,11 @@ fun EditProfileScreen(onBackClick: () -> Unit) {
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "뒤로가기")
+                    }
+                },
+                actions = {
+                    TextButton(onClick = { viewModel.updateEmail(email) }, enabled = !uiState.isSaving) {
+                        Text(if (uiState.isSaving) "저장 중..." else "저장")
                     }
                 }
             )
@@ -66,8 +97,10 @@ fun EditProfileScreen(onBackClick: () -> Unit) {
                 contentAlignment = Alignment.Center
             ) {
                 Box {
-                    Image(
-                        painter = painterResource(id = R.drawable.img_profile),
+                    AsyncImage(
+                        model = profile?.profileImageUrl,
+                        placeholder = painterResource(id = R.drawable.img_profile),
+                        error = painterResource(id = R.drawable.img_profile),
                         contentDescription = "프로필 이미지",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -90,31 +123,28 @@ fun EditProfileScreen(onBackClick: () -> Unit) {
                 }
             }
 
+            // 닉네임·전화번호는 가입 시 값이 고정되어 서버에서 수정을 지원하지 않는다(읽기 전용으로 표시).
             ProfileField(
                 label = "닉네임",
-                value = ProfileMockState.nickname,
-                onValueChange = { if (it.length <= 12) ProfileMockState.nickname = it },
-                placeholder = "닉네임을 입력해주세요"
-            )
-            ProfileField(
-                label = "이름",
-                value = ProfileMockState.name,
-                onValueChange = { ProfileMockState.name = it },
-                placeholder = "이름을 입력해주세요"
+                value = profile?.nickname ?: "",
+                onValueChange = {},
+                placeholder = "닉네임",
+                enabled = false
             )
             ProfileField(
                 label = "전화번호",
-                value = ProfileMockState.phone,
-                onValueChange = { if (it.length <= 13) ProfileMockState.phone = it },
-                placeholder = "전화번호를 입력해주세요",
+                value = profile?.phoneNumber ?: "",
+                onValueChange = {},
+                placeholder = "전화번호",
+                enabled = false,
                 keyboardType = KeyboardType.Phone
             )
             ProfileField(
                 label = "이메일",
-                value = ProfileMockState.email,
-                onValueChange = {},
-                placeholder = "이메일",
-                enabled = false
+                value = email,
+                onValueChange = { email = it },
+                placeholder = "이메일을 입력해주세요",
+                keyboardType = KeyboardType.Email
             )
         }
     }

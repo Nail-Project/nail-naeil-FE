@@ -18,12 +18,23 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.widget.Toast
+import coil.compose.AsyncImage
+import com.example.nailnaeil.data.remote.dto.EstimateRequest
+import com.example.nailnaeil.data.remote.dto.EstimateSchedule
+import com.example.nailnaeil.di.AppContainer
+import com.example.nailnaeil.ui.main.estimate.label
 import com.example.nailnaeil.ui.quote.QuoteUiState
 import com.example.nailnaeil.ui.quote.components.BackTitleHeader
 import com.example.nailnaeil.ui.quote.components.ChangeButton
@@ -34,6 +45,7 @@ import com.example.nailnaeil.ui.theme.MutedRosePrimary
 import com.example.nailnaeil.ui.theme.SurfaceWhite
 import com.example.nailnaeil.ui.theme.TextMain
 import com.example.nailnaeil.ui.theme.TextSecondary
+import kotlinx.coroutines.launch
 
 @Composable
 fun ConfirmScreen(
@@ -47,6 +59,13 @@ fun ConfirmScreen(
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(state.submitError.value) {
+        state.submitError.value?.let { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+    }
+
     Column(modifier = modifier.fillMaxSize().background(SurfaceWhite)) {
         BackTitleHeader(title = "견적 확인", onBack = onBack)
         QuoteProgressBar(current = 4, modifier = Modifier.padding(top = 4.dp, bottom = 16.dp))
@@ -74,22 +93,33 @@ fun ConfirmScreen(
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
                     Row {
-                        val thumbColor = state.selectedPhotos.firstOrNull()?.color ?: BorderLight
-                        Box(
-                            modifier = Modifier
-                                .size(64.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(thumbColor)
-                        )
+                        val thumbnail = state.selectedPhotoUris.firstOrNull()
+                        if (thumbnail != null) {
+                            AsyncImage(
+                                model = thumbnail,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                            )
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(BorderLight)
+                            )
+                        }
                         Column(modifier = Modifier.padding(start = 14.dp).weight(1f)) {
                             Text(
-                                text = state.designTags.ifEmpty { listOf("디자인 미선택") }.joinToString(" | "),
+                                text = "${state.nailType.value.label()} · ${state.removalTypes.joinToString("/") { it.label() }}",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp,
                                 color = TextMain
                             )
                             Text(
-                                text = state.requestNote.value,
+                                text = state.requestNote.value.ifBlank { "요청사항 없음" },
                                 fontSize = 12.sp,
                                 color = TextSecondary,
                                 maxLines = 2,
@@ -115,17 +145,17 @@ fun ConfirmScreen(
                     )
                     ConfirmRow(
                         title = "제거",
-                        value = state.removalOptions.joinToString("\n") { it.label }.ifEmpty { "제거 없음" },
+                        value = state.removalTypes.joinToString("\n") { it.label() }.ifEmpty { "제거 없음" },
                         onChange = onChangeRemoval
                     )
                     ConfirmRow(
                         title = "시술 부위",
-                        value = state.treatmentPart.value.label,
+                        value = state.nailType.value.label(),
                         onChange = onChangePart
                     )
                     ConfirmRow(
                         title = "샵 범위",
-                        value = "${state.neighborhood.value} 근처 ${state.searchRadius.value.rangeLabel}",
+                        value = "${state.nearbyShops.size}개 매장 · ${state.searchRadius.value.rangeLabel}",
                         onChange = onChangeRange
                     )
                 }
@@ -135,9 +165,38 @@ fun ConfirmScreen(
 
         Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             PrimaryBottomButton(
-                text = "견적 요청하기",
-                onClick = onSubmit,
-                enabled = state.removalOptions.isNotEmpty() && state.selectedDates.isNotEmpty()
+                text = if (state.isSubmitting.value) "요청 중..." else "견적 요청하기",
+                enabled = state.removalTypes.isNotEmpty() && state.selectedDates.isNotEmpty() && !state.isSubmitting.value,
+                onClick = {
+                    scope.launch {
+                        state.isSubmitting.value = true
+                        state.submitError.value = null
+                        val request = EstimateRequest(
+                            nailType = state.nailType.value,
+                            removalTypes = state.removalTypes.toList(),
+                            schedules = state.selectedDates.sorted().map { date ->
+                                EstimateSchedule(date = date, times = state.timeSlotsFor(date).toList())
+                            },
+                            recommendType = state.searchRadius.value.recommendType,
+                            description = state.requestNote.value.ifBlank { null },
+                            radiusMeters = state.searchRadius.value.radiusMeters,
+                            priceMin = if (state.noPricePreference.value) null else state.priceLower.floatValue.toInt(),
+                            priceMax = if (state.noPricePreference.value) null else state.priceUpper.floatValue.toInt(),
+                            images = state.uploadedImageUrls.toList().ifEmpty { null },
+                            shopIds = state.nearbyShops.take(20).map { it.shopId }.ifEmpty { null }
+                        )
+                        AppContainer.estimateRepository.createEstimate(request)
+                            .onSuccess { response ->
+                                state.isSubmitting.value = false
+                                state.submittedEstimate.value = response
+                                onSubmit()
+                            }
+                            .onFailure { e ->
+                                state.isSubmitting.value = false
+                                state.submitError.value = e.message ?: "견적 요청에 실패했어요."
+                            }
+                    }
+                }
             )
         }
     }

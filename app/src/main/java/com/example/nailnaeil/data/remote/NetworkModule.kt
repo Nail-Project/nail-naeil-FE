@@ -29,6 +29,26 @@ object NetworkModule {
     }
 
     fun createDeviceTokenApi(retrofit: Retrofit): DeviceTokenApi = retrofit.create(DeviceTokenApi::class.java)
+
+    fun createShopApi(retrofit: Retrofit): ShopApi = retrofit.create(ShopApi::class.java)
+
+    fun createImageApi(retrofit: Retrofit): ImageApi = retrofit.create(ImageApi::class.java)
+
+    fun createAuthApi(retrofit: Retrofit): AuthApi = retrofit.create(AuthApi::class.java)
+
+    fun createUserApi(retrofit: Retrofit): UserApi = retrofit.create(UserApi::class.java)
+
+    fun createDesignApi(retrofit: Retrofit): DesignApi = retrofit.create(DesignApi::class.java)
+
+    fun createEstimateApi(retrofit: Retrofit): EstimateApi = retrofit.create(EstimateApi::class.java)
+
+    fun createReservationApi(retrofit: Retrofit): ReservationApi = retrofit.create(ReservationApi::class.java)
+
+    fun createReviewApi(retrofit: Retrofit): ReviewApi = retrofit.create(ReviewApi::class.java)
+
+    fun createNotificationApi(retrofit: Retrofit): NotificationApi = retrofit.create(NotificationApi::class.java)
+
+    fun createAdminApi(retrofit: Retrofit): AdminApi = retrofit.create(AdminApi::class.java)
 }
 
 private class AuthInterceptor(private val tokenStore: TokenStore) : Interceptor {

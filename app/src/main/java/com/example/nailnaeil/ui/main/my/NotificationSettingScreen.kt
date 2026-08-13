@@ -34,6 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nailnaeil.ui.theme.AppBackground
 import com.example.nailnaeil.ui.theme.MutedRosePrimary
 import com.example.nailnaeil.ui.theme.SurfaceWhite
@@ -41,10 +43,13 @@ import com.example.nailnaeil.ui.theme.TextSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationSettingScreen(onBackClick: () -> Unit) {
-    var reservationNotification by remember { mutableStateOf(true) }
-    var estimateNotification by remember { mutableStateOf(true) }
-    var allAdsNotification by remember { mutableStateOf(false) }
+fun NotificationSettingScreen(
+    onBackClick: () -> Unit,
+    viewModel: NotificationSettingViewModel = viewModel { NotificationSettingViewModel() }
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    // 서버는 estimate/reservation/marketing 3개 플래그만 지원한다. 채널별(푸시/SNS/이메일) 세부 설정은
+    // 대응하는 API가 없어 로컬 상태로만 유지하고, "전체 알림 받기"만 marketingEnabled와 동기화한다.
     var pushNotification by remember { mutableStateOf(false) }
     var snsNotification by remember { mutableStateOf(false) }
     var emailNotification by remember { mutableStateOf(false) }
@@ -73,15 +78,15 @@ fun NotificationSettingScreen(onBackClick: () -> Unit) {
                 NotificationSwitchRow(
                     title = "예약 알림",
                     description = "예약 확정 및 방문 전 필요한 정보를 안내해 드려요.",
-                    checked = reservationNotification,
-                    onCheckedChange = { reservationNotification = it },
+                    checked = uiState.reservationEnabled,
+                    onCheckedChange = { viewModel.setReservationEnabled(it) },
                     modifier = Modifier.padding(top = 20.dp)
                 )
                 NotificationSwitchRow(
                     title = "견적 알림",
                     description = "견적에 대한 응답이 오는 대로 안내해 드려요.",
-                    checked = estimateNotification,
-                    onCheckedChange = { estimateNotification = it },
+                    checked = uiState.estimateEnabled,
+                    onCheckedChange = { viewModel.setEstimateEnabled(it) },
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
@@ -114,9 +119,9 @@ fun NotificationSettingScreen(onBackClick: () -> Unit) {
                 ) {
                     Text(text = "전체 알림 받기", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
                     Switch(
-                        checked = allAdsNotification,
+                        checked = uiState.marketingEnabled,
                         onCheckedChange = { checked ->
-                            allAdsNotification = checked
+                            viewModel.setMarketingEnabled(checked)
                             pushNotification = checked
                             snsNotification = checked
                             emailNotification = checked
@@ -125,9 +130,9 @@ fun NotificationSettingScreen(onBackClick: () -> Unit) {
                     )
                 }
 
-                AdSubSwitchRow(title = "푸시알림", checked = pushNotification, enabled = allAdsNotification, onCheckedChange = { pushNotification = it })
-                AdSubSwitchRow(title = "SNS", checked = snsNotification, enabled = allAdsNotification, onCheckedChange = { snsNotification = it })
-                AdSubSwitchRow(title = "이메일", checked = emailNotification, enabled = allAdsNotification, onCheckedChange = { emailNotification = it })
+                AdSubSwitchRow(title = "푸시알림", checked = pushNotification, enabled = uiState.marketingEnabled, onCheckedChange = { pushNotification = it })
+                AdSubSwitchRow(title = "SNS", checked = snsNotification, enabled = uiState.marketingEnabled, onCheckedChange = { snsNotification = it })
+                AdSubSwitchRow(title = "이메일", checked = emailNotification, enabled = uiState.marketingEnabled, onCheckedChange = { emailNotification = it })
             }
         }
     }

@@ -22,18 +22,32 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nailnaeil.di.AppContainer
 import com.example.nailnaeil.ui.theme.AppBackground
 import com.example.nailnaeil.ui.theme.DividerGray
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyInfoScreen(onBackClick: () -> Unit, onEditProfileClick: () -> Unit) {
+fun MyInfoScreen(
+    onBackClick: () -> Unit,
+    onEditProfileClick: () -> Unit,
+    onLoggedOut: () -> Unit,
+    viewModel: ProfileViewModel = viewModel { ProfileViewModel() }
+) {
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val profile = uiState.profile
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -59,9 +73,8 @@ fun MyInfoScreen(onBackClick: () -> Unit, onEditProfileClick: () -> Unit) {
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = 16.dp)
             ) {
-                MyInfoRow(label = "닉네임", value = ProfileMockState.nickname, onClick = onEditProfileClick)
-                MyInfoRow(label = "이름", value = ProfileMockState.name.ifBlank { "김지민" }, onClick = onEditProfileClick)
-                MyInfoRow(label = "휴대폰 번호", value = ProfileMockState.phone.ifBlank { "010-0000-0000" }, onClick = onEditProfileClick)
+                MyInfoRow(label = "닉네임", value = profile?.nickname ?: "", onClick = onEditProfileClick)
+                MyInfoRow(label = "휴대폰 번호", value = profile?.phoneNumber ?: "", onClick = onEditProfileClick)
                 MyInfoRow(
                     label = "간편 로그인",
                     value = "카카오",
@@ -89,7 +102,13 @@ fun MyInfoScreen(onBackClick: () -> Unit, onEditProfileClick: () -> Unit) {
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface)
                     .clickable {
-                        Toast.makeText(context, "로그아웃 기능은 추후 연결됩니다.", Toast.LENGTH_SHORT).show()
+                        coroutineScope.launch {
+                            AppContainer.authRepository.logout()
+                                .onSuccess { onLoggedOut() }
+                                .onFailure { e ->
+                                    Toast.makeText(context, e.message ?: "로그아웃에 실패했어요.", Toast.LENGTH_SHORT).show()
+                                }
+                        }
                     }
                     .padding(vertical = 20.dp, horizontal = 16.dp)
             )

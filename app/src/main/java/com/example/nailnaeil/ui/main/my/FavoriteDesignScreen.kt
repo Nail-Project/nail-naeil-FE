@@ -1,7 +1,5 @@
 package com.example.nailnaeil.ui.main.my
 
-import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,23 +26,29 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.nailnaeil.ui.theme.MutedRosePrimary
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import com.example.nailnaeil.data.remote.dto.BookmarkedDesignItem
 import com.example.nailnaeil.ui.theme.SurfaceWhite
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoriteDesignScreen(onBackClick: () -> Unit) {
-    val context = LocalContext.current
+fun FavoriteDesignScreen(
+    onBackClick: () -> Unit,
+    onDesignClick: (Long) -> Unit = {},
+    viewModel: FavoriteDesignViewModel = viewModel { FavoriteDesignViewModel() }
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -57,32 +62,45 @@ fun FavoriteDesignScreen(onBackClick: () -> Unit) {
             )
         }
     ) { padding ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(10.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+                .padding(padding)
         ) {
-            items(MockFavoriteDesigns) { design ->
-                FavoriteDesignCard(
-                    design = design,
-                    onClick = {
-                        Toast.makeText(context, "${design.designName}을 선택했습니다.", Toast.LENGTH_SHORT).show()
-                    },
-                    onHeartClick = {
-                        Toast.makeText(context, "${design.designName}의 찜을 해제했습니다.", Toast.LENGTH_SHORT).show()
-                    }
+            when {
+                uiState.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                uiState.errorMessage != null -> Text(
+                    text = uiState.errorMessage ?: "",
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(24.dp)
                 )
+                uiState.designs.isEmpty() -> Text(
+                    text = "찜한 디자인이 없어요.",
+                    modifier = Modifier.align(Alignment.Center)
+                )
+                else -> LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    items(uiState.designs) { design ->
+                        FavoriteDesignCard(
+                            design = design,
+                            onClick = { onDesignClick(design.designId) },
+                            onHeartClick = { viewModel.removeWish(design.designId) }
+                        )
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun FavoriteDesignCard(design: FavoriteDesignItem, onClick: () -> Unit, onHeartClick: () -> Unit) {
+private fun FavoriteDesignCard(design: BookmarkedDesignItem, onClick: () -> Unit, onHeartClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -90,9 +108,9 @@ private fun FavoriteDesignCard(design: FavoriteDesignItem, onClick: () -> Unit, 
             .clip(RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
     ) {
-        Image(
-            painter = painterResource(id = design.imageRes),
-            contentDescription = design.designName,
+        AsyncImage(
+            model = design.imageUrl,
+            contentDescription = design.title,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
@@ -109,27 +127,12 @@ private fun FavoriteDesignCard(design: FavoriteDesignItem, onClick: () -> Unit, 
                 .padding(top = 60.dp)
         ) {
             Text(
-                text = design.designName,
+                text = design.title,
                 style = MaterialTheme.typography.titleMedium,
                 color = SurfaceWhite,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 16.dp)
-            )
-        }
-
-        if (design.isPopular) {
-            Text(
-                text = "상담폭주",
-                style = MaterialTheme.typography.labelMedium,
-                color = SurfaceWhite,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(start = 12.dp, top = 12.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(MutedRosePrimary)
-                    .padding(horizontal = 10.dp, vertical = 6.dp)
             )
         }
 

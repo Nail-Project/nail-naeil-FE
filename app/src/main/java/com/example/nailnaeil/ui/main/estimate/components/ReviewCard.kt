@@ -15,13 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.nailnaeil.ui.main.estimate.Review
+import com.example.nailnaeil.data.remote.dto.ShopReviewItem
 import com.example.nailnaeil.ui.theme.AppBackground
 import com.example.nailnaeil.ui.theme.DividerGray
 import com.example.nailnaeil.ui.theme.TextDisabled
 
 @Composable
-fun ReviewCard(review: Review, modifier: Modifier = Modifier) {
+fun ReviewCard(review: ShopReviewItem, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -35,16 +35,18 @@ fun ReviewCard(review: Review, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = review.rating,
+                text = "${"★".repeat(review.rating)} ${review.rating}/5",
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold
             )
-            Text(text = review.daysAgo, style = MaterialTheme.typography.labelSmall, color = TextDisabled)
+            Text(text = review.createdAt.take(10), style = MaterialTheme.typography.labelSmall, color = TextDisabled)
         }
-        Text(
-            text = review.content,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 8.dp)
-        )
+        if (!review.content.isNullOrBlank()) {
+            Text(
+                text = review.content,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
     }
 }

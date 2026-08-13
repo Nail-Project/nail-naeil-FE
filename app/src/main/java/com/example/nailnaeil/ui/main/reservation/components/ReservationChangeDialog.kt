@@ -29,10 +29,8 @@ import com.example.nailnaeil.ui.theme.MutedRosePrimary
 import com.example.nailnaeil.ui.theme.SurfaceWhite
 import com.example.nailnaeil.ui.theme.TextSecondary
 
-private const val ShopPhoneNumber = "02-1234-5678"
-
 @Composable
-fun ReservationChangeDialog(onDismiss: () -> Unit) {
+fun ReservationChangeDialog(shopPhoneNumber: String?, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val clipboardManager: ClipboardManager = LocalClipboardManager.current
 
@@ -67,8 +65,12 @@ fun ReservationChangeDialog(onDismiss: () -> Unit) {
             }
             Button(
                 onClick = {
-                    clipboardManager.setText(AnnotatedString(ShopPhoneNumber))
-                    Toast.makeText(context, "샵 연락처가 복사되었습니다.", Toast.LENGTH_SHORT).show()
+                    if (shopPhoneNumber != null) {
+                        clipboardManager.setText(AnnotatedString(shopPhoneNumber))
+                        Toast.makeText(context, "샵 연락처가 복사되었습니다.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "등록된 연락처가 없어요.", Toast.LENGTH_SHORT).show()
+                    }
                     onDismiss()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MutedRosePrimary),

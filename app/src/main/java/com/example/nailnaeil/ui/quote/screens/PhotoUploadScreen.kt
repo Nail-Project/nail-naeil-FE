@@ -1,5 +1,8 @@
 package com.example.nailnaeil.ui.quote.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,32 +22,29 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material.icons.filled.AddPhotoAlternate
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.nailnaeil.ui.quote.QuoteUiState
 import com.example.nailnaeil.ui.quote.components.CloseTitleHeader
 import com.example.nailnaeil.ui.quote.components.PrimaryBottomButton
 import com.example.nailnaeil.ui.theme.AppBackground
+import com.example.nailnaeil.ui.theme.MutedRoseBgLight
 import com.example.nailnaeil.ui.theme.MutedRosePrimary
 import com.example.nailnaeil.ui.theme.SurfaceWhite
-import com.example.nailnaeil.ui.theme.TextDisabled
-import com.example.nailnaeil.ui.theme.TextMain
 import com.example.nailnaeil.ui.theme.TextSecondary
+
+private const val MAX_PHOTOS = 3
 
 @Composable
 fun PhotoUploadScreen(
@@ -53,85 +53,82 @@ fun PhotoUploadScreen(
     onNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var menuExpanded by remember { mutableStateOf(false) }
+    val pickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(MAX_PHOTOS)
+    ) { uris ->
+        val room = MAX_PHOTOS - state.selectedPhotoUris.size
+        state.selectedPhotoUris.addAll(uris.take(room))
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
-    Column(modifier = Modifier.fillMaxSize().background(SurfaceWhite)) {
-        CloseTitleHeader(
-            title = "디자인 선택",
-            onClose = onClose,
-            onNext = if (state.selectedPhotoIds.isNotEmpty()) onNext else null
-        )
+        Column(modifier = Modifier.fillMaxSize().background(SurfaceWhite)) {
+            CloseTitleHeader(
+                title = "디자인 선택",
+                onClose = onClose,
+                onNext = if (state.selectedPhotoUris.isNotEmpty()) onNext else null
+            )
 
-        Box {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .clickable { menuExpanded = true },
-                verticalAlignment = Alignment.CenterVertically
+            Text(
+                text = "원하는 네일 디자인 사진을 최대 ${MAX_PHOTOS}장까지 올려주세요",
+                fontSize = 13.sp,
+                color = TextSecondary,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            )
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
             ) {
-                Text(text = "최근 항목", fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "갤러리 선택", tint = TextMain)
-            }
-            DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
-                DropdownMenuItem(text = { Text("최근") }, onClick = { menuExpanded = false })
-                DropdownMenuItem(text = { Text("즐겨찾기") }, onClick = { menuExpanded = false })
-                DropdownMenuItem(text = { Text("모든 사진첩") }, onClick = { menuExpanded = false })
-            }
-        }
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(4),
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-            contentPadding = PaddingValues(bottom = 88.dp)
-        ) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .aspectRatio(1f)
-                        .padding(1.dp)
-                        .background(TextMain),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Filled.CameraAlt, contentDescription = "카메라", tint = SurfaceWhite)
-                }
-            }
-            items(state.demoGalleryOrdered()) { photo ->
-                val order = state.selectedPhotoIds.indexOf(photo.id)
-                val selected = order >= 0
-                Box(
-                    modifier = Modifier
-                        .aspectRatio(1f)
-                        .padding(1.dp)
-                        .background(photo.color)
-                        .clickable {
-                            if (selected) {
-                                state.selectedPhotoIds.remove(photo.id)
-                            } else if (state.selectedPhotoIds.size < 3) {
-                                state.selectedPhotoIds.add(photo.id)
-                            }
-                            state.syncDesignTags()
+                items(state.selectedPhotoUris) { uri ->
+                    Box(modifier = Modifier.aspectRatio(1f).padding(4.dp)) {
+                        AsyncImage(
+                            model = uri,
+                            contentDescription = "선택한 사진",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(8.dp))
+                        )
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(6.dp)
+                                .size(22.dp)
+                                .clip(CircleShape)
+                                .background(SurfaceWhite)
+                                .clickable { state.selectedPhotoUris.remove(uri) },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Filled.Close, contentDescription = "제거", modifier = Modifier.size(14.dp))
                         }
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .padding(6.dp)
-                            .size(20.dp)
-                            .align(Alignment.TopEnd)
-                            .clip(CircleShape)
-                            .background(if (selected) MutedRosePrimary else SurfaceWhite.copy(alpha = 0.6f))
-                            .border(1.dp, SurfaceWhite, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (selected) {
-                            Text(text = "${order + 1}", color = SurfaceWhite, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+                if (state.selectedPhotoUris.size < MAX_PHOTOS) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .padding(4.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MutedRoseBgLight)
+                                .border(1.dp, MutedRosePrimary, RoundedCornerShape(8.dp))
+                                .clickable {
+                                    pickerLauncher.launch(
+                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                    )
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(Icons.Filled.AddPhotoAlternate, contentDescription = "사진 추가", tint = MutedRosePrimary)
+                                Text(text = "사진 추가", fontSize = 12.sp, color = MutedRosePrimary, fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
                 }
             }
         }
-    }
 
         Box(
             modifier = Modifier
@@ -143,10 +140,8 @@ fun PhotoUploadScreen(
             PrimaryBottomButton(
                 text = "다음",
                 onClick = onNext,
-                enabled = state.selectedPhotoIds.isNotEmpty()
+                enabled = state.selectedPhotoUris.isNotEmpty()
             )
         }
     }
 }
-
-private fun QuoteUiState.demoGalleryOrdered() = com.example.nailnaeil.ui.quote.demoGallery

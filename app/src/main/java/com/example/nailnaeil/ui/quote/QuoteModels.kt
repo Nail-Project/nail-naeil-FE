@@ -1,10 +1,19 @@
 package com.example.nailnaeil.ui.quote
 
+import android.net.Uri
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
+import com.example.nailnaeil.data.remote.dto.EstimateResponse
+import com.example.nailnaeil.data.remote.dto.NailType
+import com.example.nailnaeil.data.remote.dto.NearbyShopResponse
+import com.example.nailnaeil.data.remote.dto.RecommendType
+import com.example.nailnaeil.data.remote.dto.RemovalType
+import com.example.nailnaeil.data.remote.dto.VisitTimeSlot
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 enum class QuoteStep {
     PHOTO_UPLOAD,
@@ -16,165 +25,170 @@ enum class QuoteStep {
     SUCCESS
 }
 
-enum class TreatmentPart(val label: String) {
-    HAND_GEL("손 젤"),
-    FOOT_GEL("발 젤"),
-    BOTH("손 + 발")
-}
-
-enum class RemovalOption(val label: String) {
-    NONE("제거 없음"),
-    GEL("젤 제거"),
-    ART_PARTS("아트, 파츠 제거"),
-    EXTENSION("연장 제거")
-}
-
-enum class TimeSlot(val label: String) {
-    ANY("상관없음"),
-    MORNING("오전"),
-    AFTERNOON("오후"),
-    EVENING("저녁")
+fun VisitTimeSlot.label(): String = when (this) {
+    VisitTimeSlot.ANY -> "상관없음"
+    VisitTimeSlot.AM -> "오전"
+    VisitTimeSlot.PM -> "오후"
+    VisitTimeSlot.EVENING -> "저녁"
 }
 
 enum class SearchRadius(
-    val km: Int,
+    val radiusMeters: Int?,
+    val recommendType: RecommendType,
     val headline: String,
     val subtitle: String,
     val buttonLabel: String,
-    val foundCount: Int,
     val rangeLabel: String
 ) {
-    NEAR(2, "가까운 곳 3개 (2km 이내)", "빠른 예약이 필요할 때 좋습니다", "적용하기", 3, "2km 이내"),
-    MODERATE(5, "적절한 곳 5개 (5km 이내)", "가장 인기있는 가성비 전략", "디자인 견적받기", 5, "5km 이내"),
-    WIDE(10, "넓게 8개 (10km 이내)", "최저가를 위해 더 넓게 찾아드려요", "디자인 견적받기", 8, "10km 이내"),
-    CITYWIDE(0, "상도동 주변 최저가 10개 (서울내)", "네일내일에서 확보한 가장 최저가를 찾아드려요", "디자인 견적받기", 10, "서울 전체")
+    NEAR(2_000, RecommendType.CLOSE, "가까운 샵 위주로 찾을게요", "빠른 예약이 필요할 때 좋습니다", "적용하기", "2km 이내"),
+    MODERATE(5_000, RecommendType.BALANCED, "적절한 균형으로 찾을게요", "가장 인기있는 가성비 전략", "디자인 견적받기", "5km 이내"),
+    WIDE(10_000, RecommendType.WIDE, "넓게 찾아드려요", "최저가를 위해 더 넓게 찾아드려요", "디자인 견적받기", "10km 이내"),
+    CITYWIDE(null, RecommendType.CHEAP, "가장 저렴한 곳을 찾을게요", "네일내일에서 확보한 가장 저렴한 견적을 찾아드려요", "디자인 견적받기", "서울 전체")
 }
 
-data class DemoPhoto(
-    val id: Int,
-    val color: Color,
-    val tags: List<String>
-)
+data class QuoteDateOption(val date: String, val label: String)
 
-/** 최근 항목 갤러리를 흉내 낸 데모 이미지 목록 (실제 갤러리 연동 전 임시 데이터) */
-val demoGallery: List<DemoPhoto> = run {
-    val palette = listOf(
-        0xFFE8CFC2, 0xFFD8B4A0, 0xFFEADCD3, 0xFFC9AE9C, 0xFFF0E0D6,
-        0xFFDCC5B8, 0xFFE3D2C6, 0xFFCFB29E, 0xFFF3E6DC, 0xFFD3B8A8,
-        0xFFE9D6C8, 0xFFC7A98F, 0xFFEFDDD0, 0xFFDBC0AE, 0xFFF1E2D5,
-        0xFFD0AE99, 0xFFE6D0C0, 0xFFCBAA92, 0xFFEEDCCE, 0xFFDDC3B0
-    )
-    val tagPool = listOf(
-        listOf("프렌치", "아트"), listOf("키치", "파츠"), listOf("파츠", "무채색", "유니크"),
-        listOf("글리터"), listOf("오벌"), listOf("마블", "아트"), listOf("스퀘어"),
-        listOf("젤리"), listOf("프렌치"), listOf("키치")
-    )
-    palette.mapIndexed { index, hex ->
-        DemoPhoto(id = index, color = Color(hex or 0xFF000000), tags = tagPool[index % tagPool.size])
+/** 오늘부터 7일 이내 방문 가능 날짜 목록(서버 스펙: 오늘~오늘+7일 이내). */
+fun upcomingDateOptions(): List<QuoteDateOption> {
+    val isoFormat = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA)
+    val labelFormat = SimpleDateFormat("M월 d일 (E)", Locale.KOREA)
+    return (0..7).map { offset ->
+        val cal = Calendar.getInstance()
+        cal.add(Calendar.DAY_OF_MONTH, offset)
+        QuoteDateOption(date = isoFormat.format(cal.time), label = labelFormat.format(cal.time))
     }
 }
 
-/** 데모용 7월 달력 (오늘 = 3일, 2주 뒤인 17일까지 선택 가능) */
-data class DemoDay(val day: Int, val weekdayIndex: Int, val isToday: Boolean, val selectable: Boolean)
+data class CalendarDay(val date: String, val dayOfMonth: Int, val weekdayIndex: Int, val isToday: Boolean, val selectable: Boolean)
 
-val demoJulyDays: List<DemoDay> = (1..31).map { day ->
-    val weekdayIndex = (day + 2) % 7 // 7/1 = 수요일(index 3) 기준 보정
-    DemoDay(
-        day = day,
-        weekdayIndex = weekdayIndex,
-        isToday = day == 3,
-        selectable = day in 3..17
-    )
-}
+data class CalendarMonth(val label: String, val leadingBlanks: Int, val days: List<CalendarDay>)
 
-fun weekdayLabel(index: Int): String = listOf("일", "월", "화", "수", "목", "금", "토")[index]
+/**
+ * 오늘~오늘+7일 범위를 달력 그리드로 보여주기 위한 월 단위 데이터.
+ * 범위가 달을 넘어가면(예: 8/28~9/4) 두 달 블록을 이어서 반환한다.
+ */
+fun quoteCalendarMonths(): List<CalendarMonth> {
+    val isoFormat = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA)
+    val today = Calendar.getInstance()
+    val todayString = isoFormat.format(today.time)
 
-fun dateLabel(day: Int): String {
-    val weekday = demoJulyDays.first { it.day == day }.weekdayIndex
-    return "7월 ${day}일 (${weekdayLabel(weekday)})"
+    val selectableDates = (0..7).map { offset ->
+        val cal = today.clone() as Calendar
+        cal.add(Calendar.DAY_OF_MONTH, offset)
+        isoFormat.format(cal.time)
+    }.toSet()
+
+    val monthKeys = linkedSetOf<Pair<Int, Int>>()
+    (0..7).forEach { offset ->
+        val cal = today.clone() as Calendar
+        cal.add(Calendar.DAY_OF_MONTH, offset)
+        monthKeys.add(cal.get(Calendar.YEAR) to cal.get(Calendar.MONTH))
+    }
+
+    return monthKeys.map { (year, month) ->
+        val first = Calendar.getInstance()
+        first.set(year, month, 1)
+        val daysInMonth = first.getActualMaximum(Calendar.DAY_OF_MONTH)
+        val leadingBlanks = first.get(Calendar.DAY_OF_WEEK) - 1
+
+        val days = (1..daysInMonth).map { day ->
+            val cal = Calendar.getInstance()
+            cal.set(year, month, day)
+            val dateString = isoFormat.format(cal.time)
+            CalendarDay(
+                date = dateString,
+                dayOfMonth = day,
+                weekdayIndex = (leadingBlanks + day - 1) % 7,
+                isToday = dateString == todayString,
+                selectable = selectableDates.contains(dateString)
+            )
+        }
+        CalendarMonth(label = "${month + 1}월", leadingBlanks = leadingBlanks, days = days)
+    }
 }
 
 /** 견적받기 플로우 전체에서 공유되는 화면 상태 */
 class QuoteUiState {
-    val selectedPhotoIds = mutableStateListOf<Int>()
+    val selectedPhotoUris = mutableStateListOf<Uri>()
+    val uploadedImageUrls = mutableStateListOf<String>()
+    val isUploadingImages = mutableStateOf(false)
+    val uploadError = mutableStateOf<String?>(null)
 
-    val treatmentPart = mutableStateOf(TreatmentPart.HAND_GEL)
-    val removalOptions = mutableStateListOf(RemovalOption.GEL)
+    val nailType = mutableStateOf(NailType.HAND)
+    val removalTypes = mutableStateListOf(RemovalType.BASIC)
 
     val priceLower = mutableFloatStateOf(70_000f)
     val priceUpper = mutableFloatStateOf(95_000f)
     val noPricePreference = mutableStateOf(false)
 
-    val selectedDates = mutableStateListOf(4, 5)
-    val timeSlotsByDate = mutableStateMapOf(
-        4 to mutableStateListOf(TimeSlot.ANY),
-        5 to mutableStateListOf(TimeSlot.MORNING, TimeSlot.AFTERNOON)
-    )
+    val availableDates = upcomingDateOptions()
+    val selectedDates = mutableStateListOf<String>()
+    val timeSlotsByDate = mutableStateMapOf<String, androidx.compose.runtime.snapshots.SnapshotStateList<VisitTimeSlot>>()
 
-    val requestNote = mutableStateOf("4일 18시 이후면 좋겠어요.\n색 변경하고 싶어요.")
+    val requestNote = mutableStateOf("")
 
-    val neighborhood = mutableStateOf("상도동")
+    val neighborhood = mutableStateOf("우리 동네")
     val searchRadius = mutableStateOf(SearchRadius.WIDE)
 
-    val designTags = mutableStateListOf<String>()
+    val latitude = mutableStateOf<Double?>(null)
+    val longitude = mutableStateOf<Double?>(null)
+    val locationError = mutableStateOf<String?>(null)
+    val isLoadingNearbyShops = mutableStateOf(false)
+    val nearbyShops = mutableStateListOf<NearbyShopResponse>()
 
-    val selectedPhotos get() = selectedPhotoIds.mapNotNull { id -> demoGallery.find { it.id == id } }
+    val isSubmitting = mutableStateOf(false)
+    val submitError = mutableStateOf<String?>(null)
+    val submittedEstimate = mutableStateOf<EstimateResponse?>(null)
 
-    /** 선택된 사진이 바뀔 때마다 호출해서 디자인 요약 태그를 최대 3개까지 다시 계산한다 */
-    fun syncDesignTags() {
-        designTags.clear()
-        designTags.addAll(selectedPhotos.flatMap { it.tags }.take(3))
-    }
-
-    fun toggleRemoval(option: RemovalOption) {
-        if (option == RemovalOption.NONE) {
-            if (removalOptions.contains(RemovalOption.NONE)) {
-                removalOptions.remove(RemovalOption.NONE)
+    fun toggleRemoval(option: RemovalType) {
+        if (option == RemovalType.NONE) {
+            if (removalTypes.contains(RemovalType.NONE)) {
+                removalTypes.remove(RemovalType.NONE)
             } else {
-                removalOptions.clear()
-                removalOptions.add(RemovalOption.NONE)
+                removalTypes.clear()
+                removalTypes.add(RemovalType.NONE)
             }
         } else {
-            removalOptions.remove(RemovalOption.NONE)
-            if (removalOptions.contains(option)) removalOptions.remove(option) else removalOptions.add(option)
+            removalTypes.remove(RemovalType.NONE)
+            if (removalTypes.contains(option)) removalTypes.remove(option) else removalTypes.add(option)
         }
     }
 
-    fun timeSlotsFor(day: Int) = timeSlotsByDate.getOrPut(day) { mutableStateListOf() }
+    fun timeSlotsFor(date: String) = timeSlotsByDate.getOrPut(date) { mutableStateListOf(VisitTimeSlot.ANY) }
 
-    fun toggleDate(day: Int) {
-        if (selectedDates.contains(day)) {
-            selectedDates.remove(day)
-            timeSlotsByDate.remove(day)
+    fun toggleDate(date: String) {
+        if (selectedDates.contains(date)) {
+            selectedDates.remove(date)
+            timeSlotsByDate.remove(date)
         } else {
-            selectedDates.add(day)
-            timeSlotsByDate[day] = mutableStateListOf(TimeSlot.ANY)
+            selectedDates.add(date)
+            timeSlotsByDate[date] = mutableStateListOf(VisitTimeSlot.ANY)
         }
     }
 
-    fun toggleTimeSlot(day: Int, slot: TimeSlot) {
-        val slots = timeSlotsFor(day)
-        if (slot == TimeSlot.ANY) {
+    fun toggleTimeSlot(date: String, slot: VisitTimeSlot) {
+        val slots = timeSlotsFor(date)
+        if (slot == VisitTimeSlot.ANY) {
             slots.clear()
-            slots.add(TimeSlot.ANY)
+            slots.add(VisitTimeSlot.ANY)
             return
         }
-        slots.remove(TimeSlot.ANY)
+        slots.remove(VisitTimeSlot.ANY)
         if (slots.contains(slot)) {
             slots.remove(slot)
-            if (slots.isEmpty()) slots.add(TimeSlot.ANY)
+            if (slots.isEmpty()) slots.add(VisitTimeSlot.ANY)
         } else {
             slots.add(slot)
         }
     }
 
-    fun scheduleSummary(): String = selectedDates.sorted().joinToString(" | ") { day ->
-        val slots = timeSlotsFor(day).joinToString(",") { it.label }
-        "${dateLabel(day)} · $slots"
+    fun dateLabel(date: String): String = availableDates.find { it.date == date }?.label ?: date
+
+    fun scheduleSummary(): String = selectedDates.sorted().joinToString(" | ") { date ->
+        "${dateLabel(date)} · ${timeSlotsFor(date).joinToString(",") { it.label() }}"
     }
 
-    fun scheduleSummaryMultiline(): String = selectedDates.sorted().joinToString("\n") { day ->
-        val slots = timeSlotsFor(day).joinToString(",") { it.label }
-        "${dateLabel(day)} · $slots"
+    fun scheduleSummaryMultiline(): String = selectedDates.sorted().joinToString("\n") { date ->
+        "${dateLabel(date)} · ${timeSlotsFor(date).joinToString(",") { it.label() }}"
     }
 }

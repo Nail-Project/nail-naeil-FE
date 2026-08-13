@@ -20,7 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.nailnaeil.ui.main.reservation.Reservation
+import com.example.nailnaeil.data.remote.dto.ReservationDetailResponse
 import com.example.nailnaeil.ui.theme.AppBackground
 import com.example.nailnaeil.ui.theme.DividerGray
 import com.example.nailnaeil.ui.theme.MutedRosePrimary
@@ -28,7 +28,7 @@ import com.example.nailnaeil.ui.theme.TextSecondary
 
 @Composable
 fun ReservationCancelConfirmSheet(
-    reservation: Reservation,
+    reservation: ReservationDetailResponse,
     onKeepReservation: () -> Unit,
     onConfirmCancel: () -> Unit
 ) {
@@ -65,7 +65,7 @@ fun ReservationCancelConfirmSheet(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(text = "예약일시", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = TextSecondary)
-                Text(text = reservation.dateTime, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                Text(text = reservation.reservedAt, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
             }
         }
 

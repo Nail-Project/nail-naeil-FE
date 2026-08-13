@@ -1,6 +1,5 @@
 package com.example.nailnaeil.ui.main.reservation.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,11 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import com.example.nailnaeil.ui.main.reservation.Reservation
+import coil.compose.AsyncImage
+import com.example.nailnaeil.data.remote.dto.ReservationListItem
 import com.example.nailnaeil.ui.main.reservation.ReservationStatus
 import com.example.nailnaeil.ui.theme.DangerBgLight
 import com.example.nailnaeil.ui.theme.DangerRed
@@ -35,11 +34,12 @@ import com.example.nailnaeil.ui.theme.TextDisabled
 
 @Composable
 fun ReservationCard(
-    reservation: Reservation,
+    reservation: ReservationListItem,
     onDetailClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isCancelled = reservation.status == ReservationStatus.CANCELLED
+    val status = ReservationStatus.fromRaw(reservation.status)
+    val isCancelled = status == ReservationStatus.CANCELLED
 
     Column(
         modifier = modifier
@@ -49,16 +49,12 @@ fun ReservationCard(
             .background(SurfaceWhite)
             .padding(16.dp)
     ) {
-        val (badgeBg, badgeColor) = when (reservation.status) {
+        val (badgeBg, badgeColor) = when (status) {
             ReservationStatus.CONFIRMED -> MutedRoseBgLight to MutedRosePrimary
             ReservationStatus.COMPLETED -> DividerGray to TextDisabled
             ReservationStatus.CANCELLED -> DangerBgLight to DangerRed
         }
-        val dateTimeColor = when (reservation.status) {
-            ReservationStatus.CONFIRMED -> MutedRosePrimary
-            ReservationStatus.COMPLETED -> TextDisabled
-            ReservationStatus.CANCELLED -> TextDisabled
-        }
+        val dateTimeColor = if (status == ReservationStatus.CONFIRMED) MutedRosePrimary else TextDisabled
         val textDecoration = if (isCancelled) TextDecoration.LineThrough else TextDecoration.None
 
         Row(
@@ -66,7 +62,7 @@ fun ReservationCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = reservation.status.badgeLabel,
+                text = status.badgeLabel,
                 style = MaterialTheme.typography.labelMedium,
                 color = badgeColor,
                 fontWeight = FontWeight.Bold,
@@ -76,7 +72,7 @@ fun ReservationCard(
                     .padding(horizontal = 10.dp, vertical = 6.dp)
             )
             Text(
-                text = reservation.dateTime,
+                text = reservation.reservedAt,
                 style = MaterialTheme.typography.bodyMedium.copy(textDecoration = textDecoration),
                 color = dateTimeColor,
                 fontWeight = FontWeight.Bold
@@ -84,8 +80,8 @@ fun ReservationCard(
         }
 
         Row(modifier = Modifier.padding(top = 10.dp)) {
-            Image(
-                painter = painterResource(id = reservation.imageRes),
+            AsyncImage(
+                model = reservation.shopThumbnailUrl,
                 contentDescription = "${reservation.shopName} 네일 디자인",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -99,19 +95,14 @@ fun ReservationCard(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = reservation.design,
-                    style = MaterialTheme.typography.bodyMedium.copy(textDecoration = textDecoration),
-                    modifier = Modifier.padding(top = 7.dp)
-                )
-                Text(
-                    text = reservation.option,
+                    text = "${reservation.nailType} · ${reservation.removalType}",
                     style = MaterialTheme.typography.bodySmall.copy(textDecoration = textDecoration),
                     color = TextDisabled,
                     modifier = Modifier.padding(top = 6.dp)
                 )
-                if (reservation.status != ReservationStatus.CANCELLED) {
+                if (status != ReservationStatus.CANCELLED) {
                     Text(
-                        text = "%,d원".format(reservation.price),
+                        text = "%,d원".format(reservation.totalPrice),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(top = 10.dp)
@@ -120,7 +111,7 @@ fun ReservationCard(
             }
         }
 
-        when (reservation.status) {
+        when (status) {
             ReservationStatus.CONFIRMED -> {
                 OutlinedButton(
                     onClick = onDetailClick,
@@ -150,7 +141,7 @@ fun ReservationCard(
 
             ReservationStatus.COMPLETED -> {
                 Text(
-                    text = "시술이 완료된 견적입니다",
+                    text = "시술이 완료된 예약입니다",
                     style = MaterialTheme.typography.bodyLarge,
                     color = TextDisabled,
                     fontWeight = FontWeight.Bold,

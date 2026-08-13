@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -23,22 +24,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.nailnaeil.ui.common.PhotoPlaceholder
+import coil.compose.AsyncImage
+import com.example.nailnaeil.data.remote.dto.DesignSummary
 import com.example.nailnaeil.ui.main.home.MagazineCategories
-import com.example.nailnaeil.ui.main.home.MagazineItem
 import com.example.nailnaeil.ui.theme.MutedRosePrimary
 import com.example.nailnaeil.ui.theme.TextSecondary
 
 @Composable
 fun MagazineSection(
-    items: List<MagazineItem>,
+    items: List<DesignSummary>,
     selectedCategory: String,
     onCategorySelected: (String) -> Unit,
-    likedIds: Set<String>,
-    onLikeToggle: (String) -> Unit,
-    onItemClick: (MagazineItem) -> Unit,
+    onLikeToggle: (DesignSummary) -> Unit,
+    onItemClick: (DesignSummary) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -77,8 +79,7 @@ fun MagazineSection(
                     rowItems.forEach { item ->
                         MagazineCard(
                             item = item,
-                            isLiked = likedIds.contains(item.id),
-                            onLikeToggle = { onLikeToggle(item.id) },
+                            onLikeToggle = { onLikeToggle(item) },
                             onClick = { onItemClick(item) },
                             modifier = Modifier.weight(1f)
                         )
@@ -94,19 +95,26 @@ fun MagazineSection(
 
 @Composable
 private fun MagazineCard(
-    item: MagazineItem,
-    isLiked: Boolean,
+    item: DesignSummary,
     onLikeToggle: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.clickable(onClick = onClick)) {
         Box {
-            PhotoPlaceholder(modifier = Modifier.aspectRatio(1f))
+            AsyncImage(
+                model = item.imageUrl,
+                contentDescription = item.title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(8.dp))
+            )
             Icon(
-                imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                imageVector = if (item.isBookmarked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                 contentDescription = "좋아요",
-                tint = if (isLiked) MutedRosePrimary else TextSecondary,
+                tint = if (item.isBookmarked) MutedRosePrimary else TextSecondary,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(8.dp)
@@ -120,7 +128,7 @@ private fun MagazineCard(
             modifier = Modifier.padding(top = 8.dp)
         )
         Text(
-            text = "◎ ${item.viewCount}  ♡ ${item.likeCount}",
+            text = "◎ ${item.viewCount}  ♡ ${item.wishCount}",
             style = MaterialTheme.typography.bodySmall,
             color = TextSecondary
         )

@@ -15,10 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import com.example.nailnaeil.R
+import com.example.nailnaeil.data.remote.dto.DesignSummary
+import com.example.nailnaeil.data.remote.dto.EstimateListItem
 import com.example.nailnaeil.navigation.MainTabRoutes
-import com.example.nailnaeil.ui.main.estimate.EstimateItem
 import com.example.nailnaeil.ui.main.estimate.EstimateListScreen
-import com.example.nailnaeil.ui.main.home.EstimateSummary
 import com.example.nailnaeil.ui.main.home.MainHomeScreen
 import com.example.nailnaeil.ui.main.my.MyPageScreen
 import com.example.nailnaeil.ui.main.reservation.ReservationListScreen
@@ -48,9 +48,10 @@ fun MainScaffold(
     onNotificationClick: () -> Unit,
     onNeedUpgrade: () -> Unit,
     onStartEstimate: () -> Unit,
-    onMagazineClick: (String) -> Unit,
-    onEstimateClick: (EstimateSummary) -> Unit,
-    onEstimateItemClick: (EstimateItem) -> Unit,
+    onMagazineClick: (DesignSummary) -> Unit,
+    onEstimateClick: (EstimateListItem) -> Unit,
+    onSeeAllEstimatesClick: () -> Unit = {},
+    onEstimateItemClick: (EstimateListItem) -> Unit,
     onReservationItemClick: (String) -> Unit,
     onEditProfileClick: () -> Unit,
     onMyInfoClick: () -> Unit,
@@ -58,7 +59,8 @@ fun MainScaffold(
     onFavoriteShopClick: () -> Unit,
     onNotificationSettingClick: () -> Unit,
     onNoticeClick: () -> Unit,
-    onTermsPolicyClick: () -> Unit
+    onTermsPolicyClick: () -> Unit,
+    onAdminUnlocked: () -> Unit = {}
 ) {
     Scaffold(
         containerColor = SurfaceWhite,
@@ -96,7 +98,8 @@ fun MainScaffold(
                     onNeedUpgrade = onNeedUpgrade,
                     onStartEstimate = onStartEstimate,
                     onMagazineClick = onMagazineClick,
-                    onEstimateClick = onEstimateClick
+                    onEstimateClick = onEstimateClick,
+                    onSeeAllEstimatesClick = onSeeAllEstimatesClick
                 )
                 MainTabRoutes.ESTIMATE_LIST -> EstimateListScreen(onItemClick = onEstimateItemClick)
                 MainTabRoutes.RESERVATION -> ReservationListScreen(
@@ -110,7 +113,8 @@ fun MainScaffold(
                     onFavoriteShopClick = onFavoriteShopClick,
                     onNotificationSettingClick = onNotificationSettingClick,
                     onNoticeClick = onNoticeClick,
-                    onTermsPolicyClick = onTermsPolicyClick
+                    onTermsPolicyClick = onTermsPolicyClick,
+                    onAdminUnlocked = onAdminUnlocked
                 )
             }
         }

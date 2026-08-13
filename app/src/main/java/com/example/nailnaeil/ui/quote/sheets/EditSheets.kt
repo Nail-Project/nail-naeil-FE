@@ -31,15 +31,16 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.nailnaeil.data.remote.dto.NailType
+import com.example.nailnaeil.data.remote.dto.RemovalType
+import com.example.nailnaeil.data.remote.dto.VisitTimeSlot
+import com.example.nailnaeil.ui.main.estimate.label
 import com.example.nailnaeil.ui.quote.QuoteUiState
-import com.example.nailnaeil.ui.quote.RemovalOption
-import com.example.nailnaeil.ui.quote.TimeSlot
-import com.example.nailnaeil.ui.quote.TreatmentPart
 import com.example.nailnaeil.ui.quote.components.ErrorText
 import com.example.nailnaeil.ui.quote.components.OptionCard
 import com.example.nailnaeil.ui.quote.components.PrimaryBottomButton
 import com.example.nailnaeil.ui.quote.components.SelectableChip
-import com.example.nailnaeil.ui.quote.dateLabel
+import com.example.nailnaeil.ui.quote.label
 import com.example.nailnaeil.ui.quote.screens.MonthCalendar
 import com.example.nailnaeil.ui.theme.BorderLight
 import com.example.nailnaeil.ui.theme.MutedRoseBgLight
@@ -97,14 +98,14 @@ fun ScheduleEditSheet(state: QuoteUiState, onConfirm: () -> Unit, modifier: Modi
             color = TextSecondary,
             modifier = Modifier.padding(vertical = 14.dp)
         )
-        state.selectedDates.sorted().forEach { day ->
-            Text(text = dateLabel(day), fontWeight = FontWeight.Bold, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
+        state.selectedDates.sorted().forEach { date ->
+            Text(text = state.dateLabel(date), fontWeight = FontWeight.Bold, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
             Row(modifier = Modifier.padding(top = 8.dp, bottom = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TimeSlot.entries.forEach { slot ->
+                VisitTimeSlot.entries.forEach { slot ->
                     SelectableChip(
-                        label = slot.label,
-                        selected = state.timeSlotsFor(day).contains(slot),
-                        onClick = { state.toggleTimeSlot(day, slot) },
+                        label = slot.label(),
+                        selected = state.timeSlotsFor(date).contains(slot),
+                        onClick = { state.toggleTimeSlot(date, slot) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -122,18 +123,18 @@ fun RemovalEditSheet(state: QuoteUiState, onConfirm: () -> Unit, modifier: Modif
         SheetTitle("제거 여부 변경")
         HorizontalDivider(color = BorderLight)
         Box(Modifier.height(16.dp))
-        RemovalOption.entries.chunked(2).forEach { rowOptions ->
+        RemovalType.entries.chunked(2).forEach { rowOptions ->
             Row(modifier = Modifier.padding(bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 rowOptions.forEach { option ->
                     OptionCard(
-                        label = option.label,
-                        selected = state.removalOptions.contains(option),
+                        label = option.label(),
+                        selected = state.removalTypes.contains(option),
                         onClick = { state.toggleRemoval(option) }
                     )
                 }
             }
         }
-        if (state.removalOptions.isEmpty()) {
+        if (state.removalTypes.isEmpty()) {
             ErrorText(text = "제거 여부를 하나 이상 선택해주세요")
         }
     }
@@ -146,11 +147,11 @@ fun TreatmentPartEditSheet(state: QuoteUiState, onConfirm: () -> Unit, modifier:
         HorizontalDivider(color = BorderLight)
         Box(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            TreatmentPart.entries.forEach { part ->
+            NailType.entries.forEach { type ->
                 OptionCard(
-                    label = part.label,
-                    selected = state.treatmentPart.value == part,
-                    onClick = { state.treatmentPart.value = part }
+                    label = type.label(),
+                    selected = state.nailType.value == type,
+                    onClick = { state.nailType.value = type }
                 )
             }
         }
@@ -201,7 +202,13 @@ fun RequestNoteDialogContent(
                     .background(MutedRoseBgLight)
                     .padding(16.dp)
             ) {
-                Text(text = state.requestNote.value, fontSize = 14.sp, color = TextMain, textAlign = androidx.compose.ui.text.style.TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                Text(
+                    text = state.requestNote.value.ifBlank { "요청사항이 없어요" },
+                    fontSize = 14.sp,
+                    color = TextMain,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
             Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedButton(
@@ -253,9 +260,9 @@ fun ScheduleConfirmDialogContent(
                 .background(MutedRoseBgLight)
                 .padding(16.dp)
         ) {
-            state.selectedDates.sorted().forEach { day ->
+            state.selectedDates.sorted().forEach { date ->
                 Text(
-                    text = "${dateLabel(day)} · ${state.timeSlotsFor(day).joinToString(",") { it.label }}",
+                    text = "${state.dateLabel(date)} · ${state.timeSlotsFor(date).joinToString(",") { it.label() }}",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = TextMain,

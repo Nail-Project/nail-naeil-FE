@@ -19,19 +19,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.example.nailnaeil.data.remote.dto.EstimateListItem
 import com.example.nailnaeil.ui.common.PhotoPlaceholder
-import com.example.nailnaeil.ui.main.home.EstimateSummary
 import com.example.nailnaeil.ui.theme.AppBackground
 import com.example.nailnaeil.ui.theme.MutedRosePrimary
 import com.example.nailnaeil.ui.theme.TextSecondary
 
 @Composable
 fun InProgressEstimateSection(
-    estimates: List<EstimateSummary>,
+    estimates: List<EstimateListItem>,
     onSeeAllClick: () -> Unit,
-    onEstimateClick: (EstimateSummary) -> Unit,
+    onEstimateClick: (EstimateListItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -95,7 +97,7 @@ fun InProgressEstimateSection(
 }
 
 @Composable
-private fun EstimateCard(estimate: EstimateSummary, onClick: () -> Unit) {
+private fun EstimateCard(estimate: EstimateListItem, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -104,20 +106,38 @@ private fun EstimateCard(estimate: EstimateSummary, onClick: () -> Unit) {
             .padding(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        PhotoPlaceholder(modifier = Modifier.size(64.dp))
+        val thumbnailUrl = estimate.images.firstOrNull()?.imageUrl
+        if (thumbnailUrl != null) {
+            AsyncImage(
+                model = thumbnailUrl,
+                contentDescription = estimate.title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+        } else {
+            PhotoPlaceholder(modifier = Modifier.size(64.dp))
+        }
         Column(modifier = Modifier.padding(start = 12.dp)) {
-            Text(text = estimate.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
             Text(
-                text = "${estimate.totalCount}개 업체중 ${estimate.respondedCount}개 응답 완료",
+                text = estimate.title ?: "견적 요청",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "${estimate.submittedShopCount}개 업체 응답 · 견적 ${estimate.proposalCount}건 도착",
                 style = MaterialTheme.typography.bodySmall,
                 color = TextSecondary
             )
-            Text(
-                text = "최저 ${"%,d".format(estimate.minPrice)}원",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                color = MutedRosePrimary
-            )
+            if (estimate.minPrice != null) {
+                Text(
+                    text = "최저 ${"%,d".format(estimate.minPrice)}원",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MutedRosePrimary
+                )
+            }
         }
     }
 }
