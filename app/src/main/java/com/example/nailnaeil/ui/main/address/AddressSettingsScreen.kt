@@ -45,7 +45,8 @@ import com.example.nailnaeil.ui.theme.TextSecondary
 fun AddressSettingsScreen(
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
-    onAddressSelected: (UserAddress) -> Unit
+    onAddressSelected: (UserAddress) -> Unit,
+    onAddNewClick: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
 
@@ -92,7 +93,7 @@ fun AddressSettingsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 12.dp, bottom = 8.dp)
-                        .clickable {},
+                        .clickable(onClick = onAddNewClick),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(Icons.Filled.MyLocation, contentDescription = null, tint = MutedRosePrimary)

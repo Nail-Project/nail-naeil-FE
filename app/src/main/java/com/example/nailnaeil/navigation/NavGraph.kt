@@ -330,7 +330,8 @@ fun NailNailNavGraph(
             AddressSettingsScreen(
                 onBackClick = { navController.popBackStack() },
                 onEditClick = { navController.navigate(Routes.ADDRESS_EDIT) },
-                onAddressSelected = { navController.popBackStack() }
+                onAddressSelected = { navController.popBackStack() },
+                onAddNewClick = { navController.navigate(Routes.addressForm("new")) }
             )
         }
 

@@ -12,9 +12,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.nailnaeil.data.remote.dto.UserAddressUpdateRequest
 import com.example.nailnaeil.di.AppContainer
@@ -79,8 +85,32 @@ fun AddressFormScreen(
         mutableStateOf(existing?.let { LatLng(it.latitude, it.longitude) })
     }
     var isGeocoding by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    var isSearching by remember { mutableStateOf(false) }
+    var searchError by remember { mutableStateOf<String?>(null) }
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(pickedLatLng ?: DEFAULT_SEOUL, 16f)
+    }
+
+    fun searchAddress() {
+        val query = searchQuery.trim()
+        if (query.isBlank() || isSearching) return
+        scope.launch {
+            isSearching = true
+            searchError = null
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    @Suppress("DEPRECATION")
+                    Geocoder(context, Locale.KOREA).getFromLocationName(query, 1)?.firstOrNull()
+                }.getOrNull()
+            }
+            isSearching = false
+            if (result == null) {
+                searchError = "검색 결과가 없어요. 다른 주소로 검색해보세요."
+            } else {
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(LatLng(result.latitude, result.longitude), 17f)
+            }
+        }
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -137,7 +167,7 @@ fun AddressFormScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            Box(modifier = Modifier.fillMaxWidth().height(220.dp)) {
+            Box(modifier = Modifier.fillMaxWidth().height(320.dp)) {
                 GoogleMap(
                     modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState,
@@ -154,6 +184,48 @@ fun AddressFormScreen(
                         .padding(bottom = 32.dp)
                         .size(36.dp)
                 )
+
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .fillMaxWidth()
+                        .padding(12.dp)
+                ) {
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = {
+                            searchQuery = it
+                            searchError = null
+                        },
+                        placeholder = { Text("주소나 건물명으로 검색") },
+                        singleLine = true,
+                        leadingIcon = {
+                            if (isSearching) {
+                                CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                            } else {
+                                Icon(Icons.Filled.Search, contentDescription = "검색")
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        keyboardActions = KeyboardActions(onSearch = { searchAddress() }),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = SurfaceWhite,
+                            unfocusedContainerColor = SurfaceWhite
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (searchError != null) {
+                        Text(
+                            text = searchError ?: "",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier
+                                .padding(top = 6.dp, start = 4.dp)
+                                .background(SurfaceWhite, RoundedCornerShape(6.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
             }
 
             Column(modifier = Modifier.padding(20.dp)) {
