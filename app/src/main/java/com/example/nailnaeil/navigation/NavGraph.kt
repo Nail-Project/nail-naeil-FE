@@ -18,6 +18,7 @@ import com.example.nailnaeil.BuildConfig
 import com.example.nailnaeil.debug.UiPreviewScreen
 import com.example.nailnaeil.di.AppContainer
 import com.example.nailnaeil.ui.main.MainScaffold
+import com.example.nailnaeil.ui.main.admin.AdminDemoListScreen
 import com.example.nailnaeil.ui.main.admin.AdminHomeScreen
 import com.example.nailnaeil.ui.main.admin.AdminMagazineDetailScreen
 import com.example.nailnaeil.ui.main.admin.AdminMagazineListScreen
@@ -264,12 +265,17 @@ fun NailNailNavGraph(
                 onBackClick = { navController.popBackStack() },
                 onMagazineManageClick = { navController.navigate(Routes.ADMIN_MAGAZINE_LIST) },
                 onShopManageClick = { navController.navigate(Routes.ADMIN_SHOP_LIST) },
+                onDemoManageClick = { navController.navigate(Routes.ADMIN_DEMO_LIST) },
                 onSettingsClick = { navController.navigate(Routes.ADMIN_SETTINGS) }
             )
         }
 
         composable(Routes.ADMIN_SETTINGS) {
             AdminSettingsScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        composable(Routes.ADMIN_DEMO_LIST) {
+            AdminDemoListScreen(onBackClick = { navController.popBackStack() })
         }
 
         composable(Routes.ADMIN_SHOP_LIST) {

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Collections
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +38,7 @@ fun AdminHomeScreen(
     onBackClick: () -> Unit,
     onMagazineManageClick: () -> Unit,
     onShopManageClick: () -> Unit,
+    onDemoManageClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
     Scaffold(
@@ -62,6 +64,12 @@ fun AdminHomeScreen(
                 icon = Icons.Filled.Storefront,
                 label = "매장 관리",
                 onClick = onShopManageClick,
+                modifier = Modifier.padding(top = 12.dp)
+            )
+            AdminMenuCard(
+                icon = Icons.Filled.PlayCircle,
+                label = "데모 관리",
+                onClick = onDemoManageClick,
                 modifier = Modifier.padding(top = 12.dp)
             )
         }

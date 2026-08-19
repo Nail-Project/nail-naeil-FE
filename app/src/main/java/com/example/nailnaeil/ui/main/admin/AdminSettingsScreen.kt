@@ -7,14 +7,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -22,10 +27,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.nailnaeil.data.demo.DemoEngine
 import com.example.nailnaeil.di.AppContainer
 import com.example.nailnaeil.ui.theme.MutedRosePrimary
 import com.example.nailnaeil.ui.theme.SurfaceWhite
@@ -106,6 +113,35 @@ fun AdminSettingsScreen(onBackClick: () -> Unit) {
                     .padding(top = 32.dp)
             ) {
                 Text("저장", color = SurfaceWhite, fontWeight = FontWeight.Bold)
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(top = 32.dp, bottom = 24.dp))
+
+            Text(
+                text = "데모 모드",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "켜면 매장 탐색이 실서버 대신 데모용 10개 매장으로 대체되고, 견적 요청 시 약 10초 후 자동으로 매장 응답이 도착해요. " +
+                    "현장에서 문제가 생기면 꺼서 즉시 실서버 흐름으로 되돌릴 수 있어요.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextSecondary,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "데모 모드 사용", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                Switch(
+                    checked = DemoEngine.demoModeEnabled.value,
+                    onCheckedChange = { DemoEngine.demoModeEnabled.value = it },
+                    colors = SwitchDefaults.colors(checkedTrackColor = MutedRosePrimary)
+                )
             }
         }
     }

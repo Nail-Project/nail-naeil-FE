@@ -135,6 +135,8 @@ class QuoteUiState {
     val locationError = mutableStateOf<String?>(null)
     val isLoadingNearbyShops = mutableStateOf(false)
     val nearbyShops = mutableStateListOf<NearbyShopResponse>()
+    /** 견적을 요청할 매장으로 사용자가 직접 선택한 목록. 기본값은 nearbyShops 전체(최대 20개)다. */
+    val selectedShopIds = mutableStateListOf<Long>()
 
     val isSubmitting = mutableStateOf(false)
     val submitError = mutableStateOf<String?>(null)
@@ -152,6 +154,10 @@ class QuoteUiState {
             removalTypes.remove(RemovalType.NONE)
             if (removalTypes.contains(option)) removalTypes.remove(option) else removalTypes.add(option)
         }
+    }
+
+    fun toggleShop(shopId: Long) {
+        if (selectedShopIds.contains(shopId)) selectedShopIds.remove(shopId) else selectedShopIds.add(shopId)
     }
 
     fun timeSlotsFor(date: String) = timeSlotsByDate.getOrPut(date) { mutableStateListOf(VisitTimeSlot.ANY) }

@@ -24,9 +24,10 @@ import com.example.nailnaeil.ui.quote.sheets.RemovalEditSheet
 import com.example.nailnaeil.ui.quote.sheets.RequestNoteDialogContent
 import com.example.nailnaeil.ui.quote.sheets.ScheduleConfirmDialogContent
 import com.example.nailnaeil.ui.quote.sheets.ScheduleEditSheet
+import com.example.nailnaeil.ui.quote.sheets.ShopSelectSheet
 import com.example.nailnaeil.ui.quote.sheets.TreatmentPartEditSheet
 
-private enum class EditSheet { NONE, SCHEDULE, REMOVAL, PART }
+private enum class EditSheet { NONE, SCHEDULE, REMOVAL, PART, SHOPS }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,6 +101,7 @@ fun QuoteFlow(onFinish: () -> Unit, modifier: Modifier = Modifier) {
                     onChangeRemoval = { editSheet = EditSheet.REMOVAL },
                     onChangePart = { editSheet = EditSheet.PART },
                     onChangeRange = { showRangeEditScreen = true },
+                    onChangeShops = { editSheet = EditSheet.SHOPS },
                     onSubmit = { step = QuoteStep.SUCCESS }
                 )
             }
@@ -138,6 +140,7 @@ fun QuoteFlow(onFinish: () -> Unit, modifier: Modifier = Modifier) {
                 EditSheet.SCHEDULE -> ScheduleEditSheet(state = state, onConfirm = { editSheet = EditSheet.NONE })
                 EditSheet.REMOVAL -> RemovalEditSheet(state = state, onConfirm = { editSheet = EditSheet.NONE })
                 EditSheet.PART -> TreatmentPartEditSheet(state = state, onConfirm = { editSheet = EditSheet.NONE })
+                EditSheet.SHOPS -> ShopSelectSheet(state = state, onConfirm = { editSheet = EditSheet.NONE })
                 EditSheet.NONE -> Unit
             }
         }

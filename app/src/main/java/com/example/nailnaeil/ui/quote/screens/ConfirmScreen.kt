@@ -56,6 +56,7 @@ fun ConfirmScreen(
     onChangeRemoval: () -> Unit,
     onChangePart: () -> Unit,
     onChangeRange: () -> Unit,
+    onChangeShops: () -> Unit,
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -158,6 +159,11 @@ fun ConfirmScreen(
                         value = "${state.nearbyShops.size}개 매장 · ${state.searchRadius.value.rangeLabel}",
                         onChange = onChangeRange
                     )
+                    ConfirmRow(
+                        title = "매장 선택",
+                        value = "${state.selectedShopIds.size}개 매장에 견적 요청",
+                        onChange = onChangeShops
+                    )
                 }
             }
             Box(modifier = Modifier.size(1.dp, 12.dp))
@@ -166,7 +172,8 @@ fun ConfirmScreen(
         Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             PrimaryBottomButton(
                 text = if (state.isSubmitting.value) "요청 중..." else "견적 요청하기",
-                enabled = state.removalTypes.isNotEmpty() && state.selectedDates.isNotEmpty() && !state.isSubmitting.value,
+                enabled = state.removalTypes.isNotEmpty() && state.selectedDates.isNotEmpty() &&
+                    state.selectedShopIds.isNotEmpty() && !state.isSubmitting.value,
                 onClick = {
                     scope.launch {
                         state.isSubmitting.value = true
@@ -183,7 +190,7 @@ fun ConfirmScreen(
                             priceMin = if (state.noPricePreference.value) null else state.priceLower.floatValue.toInt(),
                             priceMax = if (state.noPricePreference.value) null else state.priceUpper.floatValue.toInt(),
                             images = state.uploadedImageUrls.toList().ifEmpty { null },
-                            shopIds = state.nearbyShops.take(20).map { it.shopId }.ifEmpty { null }
+                            shopIds = state.selectedShopIds.toList().ifEmpty { null }
                         )
                         AppContainer.estimateRepository.createEstimate(request)
                             .onSuccess { response ->

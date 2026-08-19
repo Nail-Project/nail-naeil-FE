@@ -54,6 +54,7 @@ object Routes {
 
     const val ADMIN_HOME = "admin_home"
     const val ADMIN_SETTINGS = "admin_settings"
+    const val ADMIN_DEMO_LIST = "admin_demo_list"
     const val ADMIN_SHOP_LIST = "admin_shop_list"
     const val ADMIN_SHOP_DETAIL = "admin_shop_detail/{shopId}"
     fun adminShopDetail(shopId: Long) = "admin_shop_detail/$shopId"

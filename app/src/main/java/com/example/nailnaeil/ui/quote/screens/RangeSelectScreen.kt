@@ -122,6 +122,8 @@ fun RangeSelectScreen(
             .onSuccess { shops ->
                 state.nearbyShops.clear()
                 state.nearbyShops.addAll(shops)
+                state.selectedShopIds.clear()
+                state.selectedShopIds.addAll(shops.map { it.shopId }.take(20))
                 state.isLoadingNearbyShops.value = false
             }
             .onFailure { e ->

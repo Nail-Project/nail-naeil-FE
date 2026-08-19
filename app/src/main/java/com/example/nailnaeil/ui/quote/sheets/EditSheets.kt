@@ -12,8 +12,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -154,6 +157,49 @@ fun TreatmentPartEditSheet(state: QuoteUiState, onConfirm: () -> Unit, modifier:
                     onClick = { state.nailType.value = type }
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun ShopSelectSheet(state: QuoteUiState, onConfirm: () -> Unit, modifier: Modifier = Modifier) {
+    EditSheetScaffold(onConfirm = onConfirm, modifier = modifier, confirmLabel = "선택 완료 (${state.selectedShopIds.size}곳)") {
+        SheetTitle("견적 요청할 매장 선택")
+        Text(
+            text = "체크한 매장에만 견적 요청 문자가 발송돼요",
+            fontSize = 12.sp,
+            color = TextSecondary,
+            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+        HorizontalDivider(color = BorderLight)
+        state.nearbyShops.forEach { shop ->
+            val selected = state.selectedShopIds.contains(shop.shopId)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { state.toggleShop(shop.shopId) }
+                    .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = selected,
+                    onCheckedChange = { state.toggleShop(shop.shopId) },
+                    colors = CheckboxDefaults.colors(checkedColor = MutedRosePrimary)
+                )
+                Column(modifier = Modifier.padding(start = 4.dp)) {
+                    Text(text = shop.name, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextMain)
+                    Text(
+                        text = "${(shop.distanceMeters / 1000).let { String.format("%.1f", it) }}km" +
+                            (shop.averagePrice?.let { " · 평균 ${it.toInt() / 10_000}만원대" } ?: ""),
+                        fontSize = 12.sp,
+                        color = TextSecondary
+                    )
+                }
+            }
+        }
+        if (state.selectedShopIds.isEmpty()) {
+            ErrorText(text = "매장을 하나 이상 선택해주세요")
         }
     }
 }
